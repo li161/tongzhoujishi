@@ -404,9 +404,9 @@ export class CommunityWorld {
       }
       addBox(parent,2.05,.34,.035,mat('#d5c5a9'),x,y+1.08,z-.31);
       // Compact refrigerator beside the worktop.
-      addBox(parent,.48,1.55,.52,mat('#d9ddd8',.28),x+1.35,y+.83,z-.2);
-      addBox(parent,.5,.025,.54,dark,x+1.35,y+.82,z-.2);
-      addBox(parent,.025,.32,.035,steel,x+1.52,y+1.15,z+.08);
+      addBox(parent,.34,1.55,.48,mat('#d9ddd8',.28),x+1.22,y+.83,z-.2);
+      addBox(parent,.36,.025,.5,dark,x+1.22,y+.82,z-.2);
+      addBox(parent,.025,.32,.035,steel,x+1.34,y+1.15,z+.04);
     };
     if(layout===0) {
       // Ground-floor household: family lounge, everyday dining and master bedroom.
