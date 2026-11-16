@@ -9,89 +9,96 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{ select: [product: Product] }>();
-const photo = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/%E4%B9%8C%E9%95%87%E5%B0%8F%E5%B7%B7.JPG/1600px-%E4%B9%8C%E9%95%87%E5%B0%8F%E5%B7%B7.JPG';
+const streetPhoto = 'https://commons.wikimedia.org/wiki/Special:FilePath/Hutong_2021.jpg?width=2200';
 </script>
 
 <template>
-  <section class="oldtown-market" aria-label="古镇小街邻里旧物集市">
-    <img class="oldtown-photo" :src="photo" alt="乌镇传统石板巷道实景，白墙黛瓦与木质沿街店铺" />
-    <div class="photo-shade"></div>
-    <div class="oldtown-topline">
-      <span class="location-stamp">拾光集 · 今日开街</span>
-      <span class="street-name">{{ communityName }} · 巷口旧物街</span>
+  <section class="lane-market" aria-label="邻里老街旧物集市">
+    <img class="lane-photo" :src="streetPhoto" alt="北京胡同日常街巷实景，一位居民骑电动车经过" />
+    <div class="lane-atmosphere"></div>
+
+    <div class="lane-header">
+      <span class="lane-brand"><b>拾光集</b><i>邻里旧物交换日</i></span>
+      <span class="lane-location">{{ communityName }} · 巷口这一段</span>
     </div>
-    <div class="hanging-sign">
-      <span>邻里旧物</span>
-      <small>好物寻新主</small>
+
+    <div class="lane-side-note">
+      <span>今天有人拿来了</span>
+      <strong>一些用得上的旧东西</strong>
+      <small>不赶时间，路过可以看看</small>
     </div>
-    <div class="market-story">
-      <span class="story-kicker">A LITTLE STREET, A SECOND LIFE</span>
-      <strong>慢慢逛，<br />总能遇见<br /><em>合适的旧物。</em></strong>
-      <small>街坊自发摆摊 · 同社区优先面交</small>
+
+    <div class="stall-front">
+      <div class="stall-awning"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="stall-table">
+        <div class="table-edge"></div>
+        <button
+          v-for="(product, index) in products.slice(0, 4)"
+          :key="product.id"
+          class="loose-good"
+          :class="'good-' + index"
+          @click="emit('select', product)"
+        >
+          <span class="good-image"><img :src="product.image" :alt="product.title" /></span>
+          <span class="good-tag"><b>{{ product.title }}</b><i>¥{{ product.price }}</i></span>
+        </button>
+        <div v-if="!products.length" class="stall-empty">今天还没有邻居来摆摊</div>
+      </div>
+      <div class="stall-crates"><i></i><i></i><i></i></div>
+      <div class="stall-ground-note">街坊自用闲置 · 看中可当面聊</div>
     </div>
-    <div class="street-products">
-      <button
-        v-for="(product, index) in products.slice(0, 4)"
-        :key="product.id"
-        class="street-product"
-        :class="'product-' + index"
-        @click="emit('select', product)"
-      >
-        <span class="product-photo"><img :src="product.image" :alt="product.title" /></span>
-        <span class="product-paper">
-          <small>{{ product.category }}</small>
-          <b>{{ product.title }}</b>
-          <strong>¥{{ product.price }}</strong>
-        </span>
-      </button>
-      <div v-if="!products.length" class="empty-stall">这条巷子还在等第一位邻居来摆摊</div>
+
+    <div class="lane-footer">
+      <span class="green-dot"></span>
+      <b>{{ communityName }}</b>
+      <span>今天的邻里小集</span>
+      <small>点选桌上的物品，查看发布信息</small>
     </div>
-    <div class="street-caption">
-      <span class="caption-dot"></span>
-      <b>正在逛：{{ communityName }}</b>
-      <i></i>
-      <small>点击巷边旧物，查看邻居发布详情</small>
-    </div>
-    <a class="photo-credit" href="https://commons.wikimedia.org/wiki/File:%E4%B9%8C%E9%95%87%E5%B0%8F%E5%B7%B7.JPG" target="_blank" rel="noreferrer">场景实景照片：乌镇小巷 · Gisling / Wikimedia Commons · CC BY-SA 3.0</a>
+
+    <a class="photo-source" href="https://commons.wikimedia.org/wiki/File:Hutong_2021.jpg" target="_blank" rel="noreferrer">街巷实景：Sandykkzk / Wikimedia Commons · CC BY-SA 4.0</a>
   </section>
 </template>
 
 <style scoped>
-.oldtown-market{height:570px;position:relative;overflow:hidden;isolation:isolate;background:#5c5141;border:1px solid #b9aa8e;box-shadow:0 24px 60px #30271935;color:#fff8e9}
-.oldtown-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 53%;filter:saturate(.78) contrast(1.04) brightness(.82);transform:scale(1.015)}
-.photo-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,25,21,.78) 0%,rgba(29,28,23,.43) 31%,rgba(35,29,21,.04) 64%),linear-gradient(0deg,rgba(25,22,18,.68),transparent 35%,rgba(25,22,18,.14));pointer-events:none}
-.oldtown-topline{position:absolute;left:24px;right:24px;top:20px;display:flex;justify-content:space-between;align-items:center;z-index:2;font-size:10px;letter-spacing:1px}
-.location-stamp{padding:8px 12px;background:#382d24d9;border:1px solid #d9c7a266;color:#f2dfbb}
-.street-name{color:#f7ead4;text-shadow:0 1px 5px #201a14}
-.hanging-sign{position:absolute;top:100px;right:7%;width:76px;padding:14px 8px 12px;background:#883f2d;border:4px double #d9b77f;box-shadow:5px 8px 12px #21180f55;display:flex;flex-direction:column;align-items:center;gap:8px;transform:rotate(2deg);z-index:2}
-.hanging-sign:before{content:'';position:absolute;width:2px;height:48px;background:#453226;top:-48px;left:50%}
-.hanging-sign span{font-family:serif;font-size:22px;writing-mode:vertical-rl;letter-spacing:4px}
-.hanging-sign small{font-size:8px;letter-spacing:1px;color:#f2d8a8}
-.market-story{position:absolute;z-index:2;left:5.2%;top:112px;display:flex;flex-direction:column;align-items:flex-start;text-shadow:0 2px 12px #17140f}
-.story-kicker{font-size:8px;letter-spacing:2.2px;color:#e5c99b;margin-bottom:17px}
-.market-story strong{font-family:'Noto Serif SC','Songti SC',serif;font-size:clamp(30px,4vw,49px);line-height:1.2;letter-spacing:2px;font-weight:600}
-.market-story em{font-style:normal;color:#e9bd83}
-.market-story>small{font-size:10px;color:#eadfc9;margin-top:19px;letter-spacing:1px}
-.street-products{position:absolute;z-index:3;left:30%;right:7%;bottom:65px;height:190px;display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,2vw,24px);perspective:900px}
-.street-product{width:clamp(112px,14vw,164px);min-width:0;padding:0;border:0;background:transparent;color:#382d22;text-align:left;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(4px 10px 8px #1c171144);transition:transform .28s ease,filter .28s ease;cursor:pointer}
-.street-product:hover{transform:translateY(-13px) rotate(-1.5deg) scale(1.04);filter:drop-shadow(8px 18px 12px #1c171166);z-index:5}
-.product-photo{height:100px;width:100%;padding:6px 6px 0;background:#a17b51;border:1px solid #ddc49b;box-shadow:inset 0 0 0 2px #715237;display:block}
-.product-photo img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(.78) sepia(.08)}
-.product-paper{width:100%;min-height:72px;padding:8px 9px;background:#eee0c2;border:1px solid #c5a77b;box-shadow:inset 0 0 0 2px #f8edda;display:flex;flex-direction:column;gap:3px}
-.product-paper small{font-size:8px;color:#8a6b47}
-.product-paper b{font-family:'Noto Serif SC','Songti SC',serif;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.product-paper strong{font-family:serif;font-size:16px;color:#9c422c}
-.product-1{transform:translateY(-13px) rotate(1.4deg)}
-.product-2{transform:translateY(-3px) rotate(-1deg)}
-.product-3{transform:translateY(-18px) rotate(1deg)}
-.product-1:hover,.product-2:hover,.product-3:hover{transform:translateY(-26px) rotate(0) scale(1.04)}
-.empty-stall{align-self:center;padding:14px 18px;background:#eee0c2;color:#5e4b35;font-size:11px;border:1px solid #c5a77b}
-.street-caption{position:absolute;z-index:3;left:24px;right:24px;bottom:20px;display:flex;align-items:center;gap:9px;font-size:10px;color:#f7eddb}
-.street-caption b{font-size:11px}
-.street-caption i{height:13px;width:1px;background:#e9d9bd88;margin:0 4px}
-.street-caption small{color:#e3d6c2}
-.caption-dot{width:7px;height:7px;background:#b6c18b;border-radius:50%;box-shadow:0 0 0 4px #b6c18b2b}
-.photo-credit{position:absolute;z-index:4;right:12px;top:62px;font-size:8px;color:#f6e7cfaa;text-decoration:none;text-shadow:0 1px 4px #21170f;max-width:190px;text-align:right}
-.photo-credit:hover{color:#fff}
-@media(max-width:760px){.oldtown-market{height:520px}.oldtown-photo{object-position:48% center}.photo-shade{background:linear-gradient(90deg,#1d1b17b8,transparent 95%),linear-gradient(0deg,#211b16b8,transparent 55%)}.oldtown-topline{left:12px;right:12px;top:12px}.street-name{font-size:9px}.market-story{left:6%;top:88px}.market-story strong{font-size:32px}.market-story>small{font-size:9px}.hanging-sign{right:5%;top:90px;transform:scale(.82)}.street-products{left:4%;right:4%;bottom:68px;height:145px;gap:7px}.street-product{width:24%;}.product-photo{height:74px;padding:4px 4px 0}.product-paper{min-height:62px;padding:6px}.product-paper b{font-size:9px}.product-paper strong{font-size:13px}.street-caption{left:12px;right:12px;bottom:12px;gap:6px}.street-caption small{font-size:8px}.photo-credit{right:10px;top:auto;bottom:47px;max-width:150px;font-size:7px}}
+.lane-market{height:570px;position:relative;overflow:hidden;isolation:isolate;background:#777064;color:#f6f0e4;border:1px solid #b9b09e;box-shadow:0 22px 52px #3c352822}
+.lane-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;filter:brightness(.86) saturate(.78) contrast(1.04);transform:scale(1.01)}
+.lane-atmosphere{position:absolute;inset:0;background:linear-gradient(90deg,#171a17b8 0%,#22241d55 33%,transparent 68%),linear-gradient(0deg,#171915d9 0%,#17191518 34%,#17191520 100%);pointer-events:none}
+.lane-header{position:absolute;z-index:2;top:18px;left:22px;right:22px;display:flex;justify-content:space-between;align-items:center}
+.lane-brand{display:flex;align-items:center;gap:10px;text-shadow:0 1px 5px #17130e}
+.lane-brand b{font-family:'Noto Serif SC','Songti SC',serif;font-size:18px;letter-spacing:2px}
+.lane-brand i{font-style:normal;font-size:10px;color:#e4d8c2;border-left:1px solid #eee0c277;padding-left:10px}
+.lane-location{font-size:10px;letter-spacing:1px;color:#f1e7d5;text-shadow:0 1px 5px #17130e}
+.lane-side-note{position:absolute;z-index:2;left:5%;top:110px;display:flex;flex-direction:column;gap:9px;text-shadow:0 2px 9px #181510}
+.lane-side-note span{font-size:10px;letter-spacing:2px;color:#e2cba4}
+.lane-side-note strong{font-family:'Noto Serif SC','Songti SC',serif;font-size:clamp(22px,3vw,36px);font-weight:600;letter-spacing:1px}
+.lane-side-note small{font-size:10px;color:#e6ddcc}
+.stall-front{position:absolute;z-index:3;left:31%;right:7%;bottom:53px;height:255px;filter:drop-shadow(3px 12px 12px #19150f55)}
+.stall-awning{position:absolute;left:-2%;right:-2%;top:0;height:36px;background:#6c4937;border:1px solid #b08a62;display:flex;overflow:hidden;box-shadow:0 5px 10px #1b171255}
+.stall-awning span{flex:1;border-right:1px solid #d4b58b55;background:repeating-linear-gradient(135deg,#8b6046 0 12px,#744c39 12px 24px)}
+.stall-awning span:nth-child(2n){background:repeating-linear-gradient(135deg,#d0b58a 0 12px,#b99a70 12px 24px)}
+.stall-table{position:absolute;top:36px;left:0;right:0;height:173px;background:linear-gradient(180deg,#75543b,#4b382b);border:1px solid #a17a53;display:flex;align-items:flex-end;justify-content:space-evenly;padding:16px 10px 18px;gap:10px}
+.table-edge{position:absolute;left:0;right:0;bottom:0;height:13px;background:repeating-linear-gradient(90deg,#523c2c 0 45px,#694a34 45px 48px);border-top:2px solid #a17a53}
+.loose-good{position:relative;z-index:1;flex:1;max-width:155px;min-width:0;height:140px;padding:0;border:0;background:transparent;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;cursor:pointer;transition:transform .22s ease}
+.loose-good:hover{transform:translateY(-9px) rotate(-1deg)}
+.good-image{height:103px;padding:4px;background:#d8c9aa;border:1px solid #8d7454;box-shadow:0 3px 7px #1d160f55;display:block}
+.good-image img{width:100%;height:100%;display:block;object-fit:cover;filter:saturate(.78) contrast(1.02)}
+.good-tag{min-height:31px;background:#eee2c9;color:#47372a;display:flex;align-items:center;justify-content:space-between;gap:4px;padding:5px 7px;text-align:left}
+.good-tag b{font-family:'Noto Serif SC','Songti SC',serif;font-size:9px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.good-tag i{font-style:normal;font-size:11px;font-weight:700;color:#a04c32;white-space:nowrap}
+.good-1{transform:translateY(-8px) rotate(2deg)}
+.good-2{transform:translateY(-2px) rotate(-2deg)}
+.good-3{transform:translateY(-11px) rotate(1deg)}
+.stall-crates{position:absolute;left:8%;right:7%;bottom:0;height:42px;display:flex;gap:8px;align-items:flex-end}
+.stall-crates i{display:block;flex:1;height:36px;border:3px solid #76563a;background:repeating-linear-gradient(0deg,#a77b4e 0 8px,#805b3b 8px 11px);box-shadow:inset 0 0 0 2px #c29a6d}
+.stall-crates i:nth-child(2){height:27px;flex:.8}
+.stall-ground-note{position:absolute;right:0;bottom:-23px;font-size:9px;color:#f1e7d7;text-shadow:0 1px 4px #17130e}
+.stall-empty{align-self:center;margin:auto;padding:12px 18px;background:#e8dcc2;color:#584631;font-size:11px}
+.lane-footer{position:absolute;z-index:4;left:22px;bottom:18px;display:flex;align-items:center;gap:9px;color:#f3e9d8;font-size:10px;text-shadow:0 1px 4px #17130e}
+.lane-footer b{font-size:11px}
+.lane-footer>span:nth-of-type(2){padding-left:9px;border-left:1px solid #f0e5d077}
+.lane-footer small{color:#e0d4c1}
+.green-dot{width:7px;height:7px;border-radius:50%;background:#b8c38d;box-shadow:0 0 0 4px #b8c38d33}
+.photo-source{position:absolute;z-index:5;right:12px;bottom:18px;font-size:8px;color:#e8ddc9;text-decoration:none;text-shadow:0 1px 4px #17130e}
+.photo-source:hover{color:white}
+@media(max-width:760px){.lane-market{height:510px}.lane-photo{object-position:52% center}.lane-atmosphere{background:linear-gradient(90deg,#171a17a8,transparent 100%),linear-gradient(0deg,#171915ed 0%,transparent 58%)}.lane-header{left:12px;right:12px;top:12px}.lane-brand b{font-size:15px}.lane-brand i{font-size:8px}.lane-location{font-size:8px}.lane-side-note{left:5%;top:82px}.lane-side-note strong{font-size:23px}.stall-front{left:4%;right:4%;bottom:62px;height:205px}.stall-awning{height:27px}.stall-table{top:27px;height:143px;padding:12px 5px 15px;gap:5px}.loose-good{height:115px}.good-image{height:82px;padding:3px}.good-tag{padding:4px;min-height:29px}.good-tag b{font-size:8px}.good-tag i{font-size:10px}.stall-crates{height:34px}.stall-crates i{height:30px}.stall-crates i:nth-child(2){height:23px}.lane-footer{left:12px;bottom:12px;gap:6px}.lane-footer small{font-size:8px}.photo-source{right:10px;bottom:13px;font-size:7px;max-width:120px;text-align:right}}
 </style>
