@@ -8,8 +8,8 @@ const emit = defineEmits<{ select: [product: Product] }>();
 const host = ref<HTMLDivElement | null>(null);
 const ready = ref(false);
 let renderer: THREE.WebGLRenderer | undefined;
-let scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
+let scene!: THREE.Scene;
+let camera!: THREE.PerspectiveCamera;
 let frame = 0;
 let observer: ResizeObserver | undefined;
 let pointerDown = false;
@@ -92,8 +92,9 @@ function init() {
   // Community apartment blocks create a recognizable Beijing residential backdrop.
   for (let i = 0; i < 9; i++) {
     const h = 4.3 + (i % 3) * .85;
-    const b = makeBox(new THREE.Group(), [2.3, h, 1.25], [0, 0, 0], '#b9b7a5');
-    b.parent.position.set(-11 + i * 2.8, h / 2, -8.2); scene.add(b.parent);
+    const building = new THREE.Group();
+    makeBox(building, [2.3, h, 1.25], [0, 0, 0], '#b9b7a5');
+    building.position.set(-11 + i * 2.8, h / 2, -8.2); scene.add(building);
     for (let row = 0; row < 4; row++) for (let col = 0; col < 2; col++) {
       const win = new THREE.Mesh(new THREE.PlaneGeometry(.34, .42), new THREE.MeshBasicMaterial({ color: (row + col + i) % 4 ? '#d7d0b8' : '#879c9b' }));
       win.position.set(-11 + i * 2.8 - .48 + col * .95, .9 + row * .82, -7.55); scene.add(win);
@@ -102,7 +103,6 @@ function init() {
   // Plane of the neighborhood lane and small trees.
   for (let i = 0; i < 7; i++) {
     const x = -12 + i * 4;
-    makeCylinder(new THREE.Group(), .13, 1.45, [x, .72, -3.4], '#765b42');
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.11, .16, 1.45, 8), new THREE.MeshStandardMaterial({ color: '#765b42' }));
     trunk.position.set(x, .72, -3.4); scene.add(trunk);
     const crown = new THREE.Mesh(new THREE.SphereGeometry(.72, 12, 10), new THREE.MeshStandardMaterial({ color: i % 2 ? '#829477' : '#9ba17a', roughness: 1 }));
