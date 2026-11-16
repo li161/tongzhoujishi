@@ -204,7 +204,9 @@ export class CommunityWorld {
     for(let f=0;f<floors;f++) {
       const y=f*floorH;
       addBox(group,width,.16,depth,trim,0,y+.04,0);
-      // front facade is split into piers, leaving a view into rooms when selected
+      // Full street-facing facade: it fades to a cutaway only after a building is entered.
+      const frontWall=addBox(group,width-.28,floorH-.12,.16,facade.clone(),0,y+floorH/2,depth/2+.02);
+      frontWall.userData.frontWall=true;
       addBox(group,.24,floorH,depth*.25,facade,-width/2+.05,y+floorH/2,depth*.37);
       addBox(group,.24,floorH,depth*.25,facade,width/2-.05,y+floorH/2,depth*.37);
       const windowMat=dark.clone();
@@ -408,7 +410,7 @@ export class CommunityWorld {
             const standard=m as THREE.MeshStandardMaterial;
             if('transparent' in standard) {
               const isFront=mesh.position.z>1.5;
-              if(isFront){standard.transparent=true;standard.opacity=selected?.22:.94;standard.depthWrite=selected?false:true;}
+              if(isFront){standard.transparent=true;standard.opacity=selected ? 0.22 : 0.94;standard.depthWrite=selected?false:true;}
             }
           });
         }
