@@ -302,52 +302,90 @@ export class CommunityWorld {
       stem.position.set(x,y+.62,z);parent.add(stem);
       for(let i=0;i<5;i++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),green);leaf.scale.set(.65,1.5,.45);leaf.position.set(x+Math.sin(i*1.25)*.18,y+.62+i*.035,z+Math.cos(i*1.25)*.12);leaf.rotation.z=(i-2)*.22;parent.add(leaf);}
     };
-    // LEFT BAY — lived-in lounge: sectional sofa, cushions, rug, coffee table and media wall.
-    addBox(parent,2.25,.035,1.65,mat('#c8b9a2'),-2.72,y+.19,.78);
-    addBox(parent,1.75,.38,.72,upholstery,-2.85,y+.48,.35);
-    addBox(parent,1.75,.52,.18,upholstery,-2.85,y+.82,.05);
-    for(const x of [-3.62,-2.08]) addBox(parent,.2,.48,.72,wood,x,y+.58,.35);
-    for(const x of [-3.25,-2.55]) {const cushion=addBox(parent,.48,.12,.36,linen,x,y+.76,.27);cushion.rotation.z=-.12;}
-    addBox(parent,1.05,.12,.62,oak,-2.62,y+.38,1.65);
-    for(const x of [-3.05,-2.2]) addBox(parent,.06,.28,.06,wood,x,y+.14,1.65);
-    addBox(parent,.88,.58,.055,dark,-2.72,y+1.05,-2.72);
-    addBox(parent,1.08,.08,.28,wood,-2.72,y+.62,-2.53);
-    // Floor lamp and framed wall art.
-    const lampStem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,1.45,10),brass);lampStem.position.set(-3.75,y+.92,1.1);parent.add(lampStem);
-    const lampShade=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,.3,16,1,true),new THREE.MeshStandardMaterial({color:'#f5e4c6',emissive:'#d99548',emissiveIntensity:.55,side:THREE.DoubleSide}));lampShade.position.set(-3.75,y+1.68,1.1);parent.add(lampShade);
-    const floorLampGlow=new THREE.PointLight('#ffbf79',1.35,3.2,2);floorLampGlow.position.set(-3.75,y+1.48,1.1);parent.add(floorLampGlow);
-    addBox(parent,.72,.52,.045,mat('#8b735d'),-3.72,y+1.58,-2.72);
-    addBox(parent,.62,.42,.025,mat('#c7ad83'),-3.72,y+1.58,-2.68);
-    addPlant(-3.85,2.1);
-    // CENTER BAY — kitchen and dining, with cabinets, counter, sink, hob and pendant.
-    addBox(parent,2.45,.12,.72,wood,0,y+.62,-1.65);
-    addBox(parent,2.5,.12,.78,ceramic,0,y+.76,-1.65);
-    for(const x of [-.9,-.3,.3,.9]) addBox(parent,.48,.52,.62,oak,x,y+.32,-1.65);
-    for(const x of [-.65,.65]) addBox(parent,.46,.035,.34,dark,x,y+.84,-1.65);
-    addBox(parent,.46,.04,.35,mat('#a9b7b5',.2,.35),-.65,y+.88,-1.65);
-    // dining table, four chairs and tabletop objects
-    addBox(parent,1.28,.1,.78,oak,0,y+.78,.48);
-    for(const x of [-.52,.52]) for(const z of [.2,.76]) addBox(parent,.07,.66,.07,wood,x,y+.42,z);
-    for(const x of [-.88,.88]) {addBox(parent,.42,.08,.42,upholstery,x,y+.48,.48);addBox(parent,.42,.5,.08,wood,x,y+.73,.27);}
-    const bowl=new THREE.Mesh(new THREE.SphereGeometry(.16,14,8,0,Math.PI*2,0,Math.PI/2),ceramic);bowl.position.set(.05,y+.9,.48);parent.add(bowl);
-    const pendant=new THREE.Mesh(new THREE.ConeGeometry(.2,.24,16,1,true),mat('#c7a46d',.35,.35));pendant.position.set(0,y+1.92,.48);pendant.rotation.x=Math.PI;parent.add(pendant);
-    // RIGHT BAY — bedroom: upholstered bed, folded linen, side tables, wardrobe and mirror.
-    addBox(parent,2.25,.045,1.65,mat('#c8b9a2'),2.72,y+.19,.78);
-    addBox(parent,1.55,.28,1.78,wood,2.72,y+.36,-.25);
-    addBox(parent,1.62,.5,.13,upholstery,2.72,y+.68,-1.12);
-    addBox(parent,1.48,.12,1.48,linen,2.72,y+.58,-.22);
-    for(const x of [2.28,3.05]) addBox(parent,.52,.12,.36,linen,x,y+.72,-.7);
-    addBox(parent,.5,.56,.46,oak,1.65,y+.48,.7);
-    addBox(parent,.5,.56,.46,oak,3.78,y+.48,.7);
-    for(const x of [1.65,3.78]) {const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.2,14),brass);lamp.position.set(x,y+.86,.7);parent.add(lamp);}
-    addBox(parent,.78,1.9,.58,wood,3.78,y+1.12,-2.15);
-    for(const yy of [.72,1.15,1.58]) addBox(parent,.68,.025,.04,brass,3.78,y+yy,-1.84);
-    addPlant(3.82,1.9);
-    // Lived-in window corner: planters and a compact indoor drying rail.
-    addBox(parent,1.15,.12,.28,mat('#9b7655'),0,y+.34,1.92);
-    for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.48+i*.24,y+.55,1.92);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
-    addBox(parent,1.1,.045,.045,brass,2.15,y+1.45,1.92);
-    for(let i=0;i<3;i++) addBox(parent,.045,.55,.045,mat('#eee8d9'),1.85+i*.28,y+1.15,1.92);
+    // Every storey represents a different household. Room function, furniture,
+    // palette and clutter change by floor instead of cloning one showroom apartment.
+    const layout=floor%4;
+    const rug=(x:number,z:number,color:string)=>addBox(parent,2.05,.035,1.55,mat(color),x,y+.19,z);
+    const table=(x:number,z:number,w:number,d:number,color:string)=>{
+      addBox(parent,w,.09,d,mat(color),x,y+.76,z);
+      for(const dx of [-w*.38,w*.38]) for(const dz of [-d*.34,d*.34]) addBox(parent,.055,.58,.055,wood,x+dx,y+.43,z+dz);
+    };
+    const seat=(x:number,z:number,color:string)=>{
+      addBox(parent,1.25,.32,.58,mat(color),x,y+.43,z);
+      addBox(parent,1.25,.42,.13,mat(color),x,y+.78,z-.22);
+      for(const dx of [-.53,.53]) addBox(parent,.14,.42,.58,wood,x+dx,y+.57,z);
+    };
+    const bed=(x:number,z:number,cover:string)=>{
+      addBox(parent,1.48,.25,1.75,wood,x,y+.32,z);
+      addBox(parent,1.5,.12,1.68,mat(cover),x,y+.52,z+.02);
+      addBox(parent,1.52,.48,.12,upholstery,x,y+.66,z-.82);
+      for(const dx of [-.42,.42]) addBox(parent,.48,.11,.32,linen,x+dx,y+.67,z-.52);
+    };
+    const kitchen=(x:number,z:number)=>{
+      addBox(parent,2.1,.58,.62,oak,x,y+.48,z);
+      addBox(parent,2.15,.1,.68,ceramic,x,y+.82,z);
+      for(const dx of [-.62,.62]) addBox(parent,.42,.035,.34,dark,x+dx,y+.89,z);
+      addBox(parent,.38,.035,.32,mat('#9caeaa',.2,.35),x-.62,y+.92,z);
+    };
+    if(layout===0) {
+      // Ground-floor household: family lounge, everyday dining and master bedroom.
+      rug(-2.72,.8,'#b8a58a'); seat(-2.8,.48,'#9b8875');
+      addBox(parent,.95,.12,.58,oak,-2.55,y+.38,1.55);
+      addBox(parent,.9,.55,.05,dark,-2.72,y+1.02,-2.72);
+      kitchen(0,-1.65); table(0,.55,1.35,.82,'#a77d50');
+      bed(2.72,-.25,'#d8cbb7');
+      addBox(parent,.78,1.9,.58,wood,3.78,y+1.12,-2.15);
+      addPlant(-3.82,2.05); addPlant(3.82,1.9);
+    } else if(layout===1) {
+      // Second household: children's room, homework desk and a compact family dining area.
+      rug(-2.72,.8,'#91a8a0'); 
+      addBox(parent,1.35,.34,.7,mat('#d6b56f'),-2.72,y+.38,.45);
+      addBox(parent,1.35,.12,.68,mat('#f0d9a5'),-2.72,y+.62,.45);
+      addBox(parent,.95,.72,.52,oak,-3.05,y+.55,-1.85);
+      addBox(parent,.82,.06,.42,mat('#d4b66f'),-3.05,y+.94,-1.85);
+      for(let i=0;i<4;i++) addBox(parent,.12,.12,.12,mat(['#d96f55','#6e9c83','#6686b0','#e3bd62'][i]),-3.35+i*.2,y+1.05,-1.82);
+      kitchen(0,-1.65); table(0,.55,1.15,.72,'#bd9b70');
+      bed(2.72,-.25,'#9db8c8');
+      addBox(parent,.8,1.75,.58,mat('#c8a66e'),3.75,y+1.02,-2.12);
+      addPlant(3.82,1.9);
+    } else if(layout===2) {
+      // Third household: older residents, tea corner, display cabinet and a calm bedroom.
+      rug(-2.72,.8,'#9d8066'); seat(-2.82,.45,'#8b6b52');
+      table(-2.72,1.55,.78,.58,'#9c744b');
+      const teaTray=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.035,20),mat('#493c30'));
+      teaTray.position.set(-2.72,y+.85,1.55);parent.add(teaTray);
+      for(let i=0;i<3;i++){const cup=new THREE.Mesh(new THREE.CylinderGeometry(.055,.045,.07,12),ceramic);cup.position.set(-2.9+i*.18,y+.91,1.55);parent.add(cup);}
+      kitchen(0,-1.65); table(0,.55,1.25,.78,'#876344');
+      bed(2.72,-.25,'#c7b9a3');
+      for(let i=0;i<4;i++) addBox(parent,.65,.38,.48,oak,3.75,y+.38,-2.25+i*.42);
+      addPlant(-3.82,2.05);
+    } else {
+      // Fourth household: young renter, work-from-home desk, open wardrobe and laundry.
+      rug(-2.72,.8,'#8b9998');
+      seat(-3.05,.55,'#777f7b');
+      addBox(parent,1.45,.08,.62,oak,-2.72,y+.78,-1.75);
+      for(const dx of [-.58,.58]) addBox(parent,.06,.72,.06,wood,-2.72+dx,y+.4,-1.75);
+      addBox(parent,.9,.52,.045,dark,-2.72,y+1.18,-2.68);
+      addBox(parent,.22,.24,.22,mat('#d2b88a'),-2.2,y+.96,-1.7);
+      kitchen(0,-1.65); table(0,.55,1.05,.68,'#9d805f');
+      bed(2.72,-.25,'#a9aaa2');
+      addBox(parent,.08,1.8,.62,wood,3.72,y+1.05,-2.15);
+      for(let i=0;i<4;i++) addBox(parent,.58,.04,.04,linen,3.72,y+.42+i*.34,-1.8);
+      addBox(parent,1.15,.12,.28,mat('#9b7655'),0,y+.34,1.92);
+      for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.48+i*.24,y+.55,1.92);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
+    }
+    // Small personal objects differ by household and make each level read as inhabited.
+    const wallArt=addBox(parent,.58,.42,.035,mat(layout===1?'#d7a85f':layout===2?'#8e765c':'#bca98b'),-3.72,y+1.62,-2.68);
+    if(layout===0) {
+      const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.17,.24,.28,16,1,true),mat('#e6d2ae'));lamp.position.set(-3.7,y+1.55,1.1);parent.add(lamp);
+    } else if(layout===1) {
+      for(let i=0;i<3;i++) addBox(parent,.18,.18,.18,mat('#d9a94e'),-3.6+i*.24,y+.32,1.8);
+    } else if(layout===2) {
+      const clock=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.06,24),mat('#6f5b46'));clock.position.set(-3.7,y+1.62,-2.62);parent.add(clock);
+    } else {
+      const monitor=addBox(parent,.62,.38,.04,dark,-2.72,y+1.08,-1.72);
+      monitor.rotation.y=.04;
+    }
 
     // Registered marketplace goods replace matching furniture positions in the correct room.
     listings.forEach(listing=>{
