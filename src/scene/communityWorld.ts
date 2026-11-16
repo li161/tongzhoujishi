@@ -238,17 +238,9 @@ export class CommunityWorld {
       // Short return walls and door openings at the back.
       addBox(group,1.12,2.12,.12,plaster,-2.7,y+1.18,-.35);
       addBox(group,1.12,2.12,.12,plaster,2.7,y+1.18,-.35);
-      // Front balcony: continuous slab, metal handrail and narrow balusters.
-      addBox(group,width-.5,.12,.92,slabEdge,0,y+.28,frontZ+.42);
-      addBox(group,width-.5,.07,.07,balcony,0,y+1.08,frontZ+.84);
-      for(let b=0;b<31;b++) addBox(group,.035,.72,.045,balcony,-(width-.65)/2+b*(width-.65)/30,y+.69,frontZ+.84);
-      // Window-side air conditioner condensers and drainage pipes.
-      for(const x of [-3.55,3.55]) {
-        addBox(group,.52,.4,.34,mat('#d8d5cc',.55),x,y+.78,frontZ+.13);
-        const fan=new THREE.Mesh(new THREE.TorusGeometry(.125,.018,6,20),mat('#858d88',.45,.3));
-        fan.position.set(x,y+.78,frontZ+.31); group.add(fan);
-        addBox(group,.035,.72,.035,mat('#a8aaa2'),x+.34,y+.45,frontZ+.08);
-      }
+      // Keep the cutaway edge completely open: no continuous balcony slab or railing.
+      // A full-width guardrail made the elevation read like an exterior corridor.
+      // Small domestic details stay inside each apartment instead of crossing the section.
       // Three distinct warm pools of practical light, one for each lived-in room.
       // Small point lights and emissive fittings create visible warm interiors;
       // cooler daylight remains outside the cutaway for a photographic contrast.
@@ -274,17 +266,16 @@ export class CommunityWorld {
       }
       this.addRoomFurniture(group,f,y,floorH,record,products);
     }
-    // Exposed vertical circulation core on the right, visible through the cut.
-    const stairX=width/2-.62;
+    // The stairwell is deliberately kept behind the apartment section, not in front.
+    // Do not draw exposed stair flights or a full-depth landing across the rooms:
+    // those elements dominated the view and made the building look like a corridor.
+    // A narrow, dark service core at the rear-right preserves believable building logic.
+    addBox(group,.72,floors*floorH,.72,mat('#454640'),3.72,floors*floorH/2,-2.38);
     for(let f=0;f<floors;f++) {
       const y=f*floorH;
-      addBox(group,.88,.12,depth-.45,mat('#5d5a52'),stairX,y+.28,-.02);
-      for(let step=0;step<10;step++) {
-        const stair=addBox(group,.66,.09,.25,mat('#b8aa94'),stairX,y+.38+step*.18,-1.65+step*.29);
-        stair.rotation.x=-.03;
-      }
-      addBox(group,.08,2.2,.08,darkFrame,stairX-.43,y+1.25,.3);
-      addBox(group,.08,2.2,.08,darkFrame,stairX+.43,y+1.25,.3);
+      addBox(group,.76,.08,.76,mat('#6a665c'),3.72,y+.22,-2.38);
+      addBox(group,.06,1.95,.06,darkFrame,3.36,y+1.1,-2.38);
+      addBox(group,.06,1.95,.06,darkFrame,4.08,y+1.1,-2.38);
     }
     // Roof parapet, water tank and service details.
     addBox(group,width+.3,.22,.22,concrete,0,floors*floorH+.42,frontZ-.06);
@@ -352,11 +343,11 @@ export class CommunityWorld {
     addBox(parent,.78,1.9,.58,wood,3.78,y+1.12,-2.15);
     for(const yy of [.72,1.15,1.58]) addBox(parent,.68,.025,.04,brass,3.78,y+yy,-1.84);
     addPlant(3.82,1.9);
-    // Balcony planters and a small laundry rail make the apartments feel inhabited.
-    addBox(parent,1.5,.24,.28,mat('#9b7655'),0,y+.34,3.35);
-    for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.55+i*.27,y+.55,3.35);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
-    addBox(parent,1.55,.045,.045,brass,2.45,y+1.45,3.45);
-    for(let i=0;i<3;i++) addBox(parent,.045,.55,.045,mat('#eee8d9'),2.1+i*.28,y+1.15,3.45);
+    // Lived-in window corner: planters and a compact indoor drying rail.
+    addBox(parent,1.15,.12,.28,mat('#9b7655'),0,y+.34,1.92);
+    for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.48+i*.24,y+.55,1.92);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
+    addBox(parent,1.1,.045,.045,brass,2.15,y+1.45,1.92);
+    for(let i=0;i<3;i++) addBox(parent,.045,.55,.045,mat('#eee8d9'),1.85+i*.28,y+1.15,1.92);
 
     // Registered marketplace goods replace matching furniture positions in the correct room.
     listings.forEach(listing=>{
