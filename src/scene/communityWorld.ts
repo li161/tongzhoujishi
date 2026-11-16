@@ -190,63 +190,84 @@ export class CommunityWorld {
   }
 
   private createBuilding(record:BuildingRecord, products:Product[], highlighted:boolean) {
+    // Architectural cutaway: the street-facing elevation is deliberately removed.
+    // This is a dollhouse section, not a solid facade with a transparency trick.
     const group=new THREE.Group(); group.userData.buildingId=record.id;
-    const width=4.7, depth=4.1, floorH=2.55, floors=record.floors;
-    const facade=mat(record.communityId==='ciq-jy'?'#c9c7bc':'#d0c9b8');
-    const trim=mat('#e5e0d4'), dark=mat('#657477',.34,.12), balcony=mat('#b7b4a8');
-    const shadow=mat('#77796f'), roof=mat('#8c8d84');
-    // Core structure and roof
-    addBox(group,width,.25,depth,roof,0,floors*floorH+.18,0);
-    addBox(group,.24,floors*floorH,depth,facade,-width/2, floors*floorH/2,0);
-    addBox(group,.24,floors*floorH,depth,facade,width/2,floors*floorH/2,0);
-    addBox(group,width,floors*floorH,.22,facade,0,floors*floorH/2,-depth/2);
-    // Floor plates and front cutaway facade segments
+    const width=8.4, depth=5.8, floorH=2.55, floors=record.floors;
+    const concrete=mat('#55534d',.94), slabEdge=mat('#77746b'), plaster=mat('#c9bca8');
+    const darkFrame=mat('#292d2b',.72), windowGlass=new THREE.MeshPhysicalMaterial({color:'#78949a',roughness:.16,metalness:.12,transmission:.12,transparent:true,opacity:.68});
+    const wood=mat('#806044',.76), warmWood=mat('#aa8057',.72), cream=mat('#e4d8c4',.9);
+    const balcony=mat('#383f3c',.55,.25), greenery=mat('#536d4c');
+    const frontZ=depth/2;
+    // Side walls and rear elevation frame the open-front section.
+    addBox(group,.22,floors*floorH,depth,concrete,-width/2,floors*floorH/2,0);
+    addBox(group,.22,floors*floorH,depth,concrete,width/2,floors*floorH/2,0);
+    addBox(group,width,floors*floorH,.24,plaster,0,floors*floorH/2,-depth/2);
+    addBox(group,width+.34,.34,depth+.3,concrete,0,floors*floorH+.16,0);
+    // Structural columns, exposed cut edges and continuous floor plates.
+    for(const x of [-width/2+.12,width/2-.12]) addBox(group,.22,floors*floorH,.26,slabEdge,x,floors*floorH/2,frontZ-.08);
     for(let f=0;f<floors;f++) {
       const y=f*floorH;
-      addBox(group,width,.16,depth,trim,0,y+.04,0);
-      // Full street-facing facade: it fades to a cutaway only after a building is entered.
-      const frontWall=addBox(group,width-.28,floorH-.12,.16,facade.clone(),0,y+floorH/2,depth/2+.02);
-      frontWall.userData.frontWall=true;
-      addBox(group,.24,floorH,depth*.25,facade,-width/2+.05,y+floorH/2,depth*.37);
-      addBox(group,.24,floorH,depth*.25,facade,width/2-.05,y+floorH/2,depth*.37);
-      const windowMat=dark.clone();
-      const win=addBox(group,1.05,1.28,.09,windowMat,-.82,y+1.52,depth/2+.03);
-      win.userData.buildingId=record.id; this.buildingMeshes.push(win);
-      addBox(group,1.15,.09,.12,trim,-.82,y+2.17,depth/2+.07);
-      addBox(group,.06,1.3,.1,trim,-.82,y+1.52,depth/2+.09);
-      // Balcony slab, rail and vertical balusters
-      addBox(group,1.7,.13,.8,balcony,.95,y+.85,depth/2+.36);
-      addBox(group,1.7,.07,.07,trim,.95,y+1.28,depth/2+.72);
-      for(let b=0;b<8;b++) addBox(group,.035,.42,.035,trim,.13+b*.235,y+1.05,depth/2+.72);
-      addBox(group,.06,.06,.12,trim,.1,y+1.3,depth/2+.72);
-      // window frames and split sash
-      addBox(group,1.22,.07,.12,trim,.82,y+1.58,depth/2+.07);
-      addBox(group,.06,1.25,.12,trim,.82,y+1.58,depth/2+.07);
-      addBox(group,.045,1.2,.1,trim,-.82,y+1.52,depth/2+.1);
-      // AC outdoor unit with fan grille
-      addBox(group,.66,.48,.4,mat('#e1dfd4'),-1.72,y+.72,depth/2+.22);
-      const fan=new THREE.Mesh(new THREE.TorusGeometry(.14,.025,6,20),mat('#8c9691'));
-      fan.position.set(-1.72,y+.72,depth/2+.44); group.add(fan);
-      addBox(group,.76,.06,.48,mat('#9b9b91'),-1.72,y+.43,depth/2+.22);
-      // Interior partitions and room wall returns
-      addBox(group,.12,floorH*.72,.9,trim,0,y+floorH*.36,-.48);
-      addBox(group,1.45,.12,.12,trim,-1.15,y+.9,-.1);
-      addBox(group,1.1,.12,.12,trim,1.25,y+1.25,-.5);
-      // room lighting
-      const lamp=new THREE.PointLight('#ffdfac',.42,4.2,2);
-      lamp.position.set(0,y+1.95,-.3); group.add(lamp);
+      addBox(group,width,.19,depth,slabEdge,0,y+.02,0);
+      addBox(group,width-.24,.055,depth-.22,wood,0,y+.145,0);
+      // A dark exposed ceiling beam gives every apartment a clear architectural outline.
+      addBox(group,width,.12,.18,darkFrame,0,y+floorH-.08,frontZ-.1);
+      // Rear windows with deep reveals and mullions.
+      for(const x of [-2.7,0,2.7]) {
+        addBox(group,2.05,1.42,.12,darkFrame,x,y+1.62,-depth/2+.1);
+        addBox(group,1.82,1.18,.035,windowGlass,x,y+1.62,-depth/2+.17);
+        addBox(group,.045,1.18,.05,darkFrame,x,y+1.62,-depth/2+.2);
+        addBox(group,1.82,.045,.05,darkFrame,x,y+1.62,-depth/2+.2);
+        // Curtains hang at both sides of the glazing.
+        for(const dx of [-.94,.94]) {
+          const curtain=addBox(group,.13,1.5,.055,mat('#b5a58e'),x+dx,y+1.62,-depth/2+.34);
+          curtain.rotation.z=dx<0?-.025:.025;
+        }
+      }
+      // Apartment partitions: three connected but distinct rooms.
+      addBox(group,.12,2.18,2.05,plaster,-1.42,y+1.22,.72);
+      addBox(group,.12,2.18,2.05,plaster,1.42,y+1.22,.72);
+      // Short return walls and door openings at the back.
+      addBox(group,1.12,2.12,.12,plaster,-2.7,y+1.18,-.35);
+      addBox(group,1.12,2.12,.12,plaster,2.7,y+1.18,-.35);
+      // Front balcony: continuous slab, metal handrail and narrow balusters.
+      addBox(group,width-.5,.12,.92,slabEdge,0,y+.28,frontZ+.42);
+      addBox(group,width-.5,.07,.07,balcony,0,y+1.08,frontZ+.84);
+      for(let b=0;b<31;b++) addBox(group,.035,.72,.045,balcony,-(width-.65)/2+b*(width-.65)/30,y+.69,frontZ+.84);
+      // Window-side air conditioner condensers and drainage pipes.
+      for(const x of [-3.55,3.55]) {
+        addBox(group,.52,.4,.34,mat('#d8d5cc',.55),x,y+.78,frontZ+.13);
+        const fan=new THREE.Mesh(new THREE.TorusGeometry(.125,.018,6,20),mat('#858d88',.45,.3));
+        fan.position.set(x,y+.78,frontZ+.31); group.add(fan);
+        addBox(group,.035,.72,.035,mat('#a8aaa2'),x+.34,y+.45,frontZ+.08);
+      }
+      // Warm practical lights, recessed ceiling spots and pendant lamps.
+      const ceilingLight=new THREE.PointLight('#ffd39b',1.15,9,1.7);
+      ceilingLight.position.set(0,y+2.15,.15); group.add(ceilingLight);
+      for(const x of [-3.1,0,3.1]) {
+        const downlight=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.045,16),mat('#e8d4ad',.35));
+        downlight.position.set(x,y+floorH-.16,.25); group.add(downlight);
+      }
       this.addRoomFurniture(group,f,y,floorH,record,products);
     }
-    // entrance and vertical stair core
-    addBox(group,1.2,1.9,.18,mat('#69756e'),0,.98,depth/2+.04);
-    addBox(group,.12,1.8,.08,trim,-.53,.98,depth/2+.15);
-    for(let i=0;i<4;i++) addBox(group,.22,.08,.22,mat('#85857b'),-.33+i*.22,.12+i*.12,depth/2+.2);
-    // roof parapet
-    addBox(group,width,.25,.16,trim,0,floors*floorH+.35,depth/2-.05);
-    // subtle building ID plaque
-    const plaque=addBox(group,1.15,.48,.08,mat('#43594b'),0,1.8,depth/2+.16);
-    plaque.userData.buildingId=record.id;
-    group.traverse(obj=>{ if((obj as THREE.Mesh).isMesh){obj.castShadow=true;obj.receiveShadow=true;} });
+    // Exposed vertical circulation core on the right, visible through the cut.
+    const stairX=width/2-.62;
+    for(let f=0;f<floors;f++) {
+      const y=f*floorH;
+      addBox(group,.88,.12,depth-.45,mat('#5d5a52'),stairX,y+.28,-.02);
+      for(let step=0;step<10;step++) {
+        const stair=addBox(group,.66,.09,.25,mat('#b8aa94'),stairX,y+.38+step*.18,-1.65+step*.29);
+        stair.rotation.x=-.03;
+      }
+      addBox(group,.08,2.2,.08,darkFrame,stairX-.43,y+1.25,.3);
+      addBox(group,.08,2.2,.08,darkFrame,stairX+.43,y+1.25,.3);
+    }
+    // Roof parapet, water tank and service details.
+    addBox(group,width+.3,.22,.22,concrete,0,floors*floorH+.42,frontZ-.06);
+    addBox(group,1.1,.75,.9,mat('#8d918b'),-2.8,floors*floorH+.68,-1.8);
+    addBox(group,.8,.08,.65,darkFrame,-2.8,floors*floorH+1.1,-1.8);
+    // Plaque is metadata-only; selection is provided by the whole architectural group.
+    group.traverse(obj=>{const mesh=obj as THREE.Mesh;if(mesh.isMesh){mesh.castShadow=true;mesh.receiveShadow=true;}});
     group.userData.originalScale=1;
     this.buildingMeshes.push(group);
     this.pickables.push(group);
@@ -256,36 +277,63 @@ export class CommunityWorld {
 
   private addRoomFurniture(parent:THREE.Group,floor:number,y:number,floorH:number,record:BuildingRecord,products:Product[]) {
     const listings=record.listings.filter(item=>item.floor===floor+1);
-    const wood=mat('#9a7554'), fabric=mat('#b9a58d'), cream=mat('#ddd5c3'), metal=mat('#737d79',.38,.35);
-    const roomZ=.55;
-    // Every floor receives a furnished living room + bedroom vignette
-    const sofa=new THREE.Group();
-    addBox(sofa,1.15,.42,.48,fabric,0,.36,0);
-    addBox(sofa,1.15,.48,.15,fabric,0,.78,-.17);
-    for(const x of [-.48,.48]) addBox(sofa,.16,.45,.48,wood,x,.42,0);
-    sofa.position.set(-1.05,y+.15,roomZ); parent.add(sofa);
-    addBox(parent,.78,.12,.48,wood,.75,y+.38,.65);
-    addBox(parent,.72,.07,.42,cream,.75,y+.48,.65);
-    // bed and headboard on the opposite side
-    addBox(parent,1.25,.28,1.45,cream,1.2,y+.28,-1.25);
-    addBox(parent,1.28,.72,.12,wood,1.2,y+.68,-1.92);
-    addBox(parent,.42,.12,.34,cream,.85,y+.49,-1.5);
-    addBox(parent,.42,.12,.34,cream,1.42,y+.49,-1.5);
-    // cabinet and kitchen counter
-    addBox(parent,.95,1.35,.38,wood,-1.48,y+.75,-1.5);
-    addBox(parent,1.1,.78,.42,cream,.25,y+.42,-1.7);
-    addBox(parent,.72,.05,.48,metal,.25,y+.83,-1.7);
-    // standing lamp, shade
-    const stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,.95,8),metal);
-    stem.position.set(-1.7,y+.62,.9); parent.add(stem);
-    const shade=new THREE.Mesh(new THREE.ConeGeometry(.23,.3,12,1,true),mat('#d4c3a2'));
-    shade.position.set(-1.7,y+1.2,.9); shade.rotation.x=Math.PI; parent.add(shade);
-    // windowsill flower pot
-    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,.18,10),mat('#a66f50'));
-    pot.position.set(-1.5,y+.23,1.65); parent.add(pot);
-    const plant=new THREE.Mesh(new THREE.IcosahedronGeometry(.17,1),mat('#68805d'));
-    plant.position.set(-1.5,y+.43,1.65); parent.add(plant);
+    const wood=mat('#876447',.78), oak=mat('#b18a60',.72), upholstery=mat('#b6a48e',.94);
+    const linen=mat('#e4dac9',.96), dark=mat('#343a37',.38,.12), ceramic=mat('#d7d0c2',.35);
+    const green=mat('#647d58',.9), brass=mat('#a98a57',.3,.65);
+    const addPlant=(x:number,z:number)=>{
+      const pot=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.22,14),mat('#a66d50'));
+      pot.position.set(x,y+.25,z);parent.add(pot);
+      const stem=new THREE.Mesh(new THREE.CylinderGeometry(.018,.025,.55,7),green);
+      stem.position.set(x,y+.62,z);parent.add(stem);
+      for(let i=0;i<5;i++){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.12,10,8),green);leaf.scale.set(.65,1.5,.45);leaf.position.set(x+Math.sin(i*1.25)*.18,y+.62+i*.035,z+Math.cos(i*1.25)*.12);leaf.rotation.z=(i-2)*.22;parent.add(leaf);}
+    };
+    // LEFT BAY — lived-in lounge: sectional sofa, cushions, rug, coffee table and media wall.
+    addBox(parent,2.25,.035,1.65,mat('#c8b9a2'),-2.72,y+.19,.78);
+    addBox(parent,1.75,.38,.72,upholstery,-2.85,y+.48,.35);
+    addBox(parent,1.75,.52,.18,upholstery,-2.85,y+.82,.05);
+    for(const x of [-3.62,-2.08]) addBox(parent,.2,.48,.72,wood,x,y+.58,.35);
+    for(const x of [-3.25,-2.55]) {const cushion=addBox(parent,.48,.12,.36,linen,x,y+.76,.27);cushion.rotation.z=-.12;}
+    addBox(parent,1.05,.12,.62,oak,-2.62,y+.38,1.65);
+    for(const x of [-3.05,-2.2]) addBox(parent,.06,.28,.06,wood,x,y+.14,1.65);
+    addBox(parent,.88,.58,.055,dark,-2.72,y+1.05,-2.72);
+    addBox(parent,1.08,.08,.28,wood,-2.72,y+.62,-2.53);
+    // Floor lamp and framed wall art.
+    const lampStem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,1.45,10),brass);lampStem.position.set(-3.75,y+.92,1.1);parent.add(lampStem);
+    const lampShade=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,.3,16,1,true),linen);lampShade.position.set(-3.75,y+1.68,1.1);parent.add(lampShade);
+    addBox(parent,.72,.52,.045,mat('#8b735d'),-3.72,y+1.58,-2.72);
+    addBox(parent,.62,.42,.025,mat('#c7ad83'),-3.72,y+1.58,-2.68);
+    addPlant(-3.85,2.1);
+    // CENTER BAY — kitchen and dining, with cabinets, counter, sink, hob and pendant.
+    addBox(parent,2.45,.12,.72,wood,0,y+.62,-1.65);
+    addBox(parent,2.5,.12,.78,ceramic,0,y+.76,-1.65);
+    for(const x of [-.9,-.3,.3,.9]) addBox(parent,.48,.52,.62,oak,x,y+.32,-1.65);
+    for(const x of [-.65,.65]) addBox(parent,.46,.035,.34,dark,x,y+.84,-1.65);
+    addBox(parent,.46,.04,.35,mat('#a9b7b5',.2,.35),-.65,y+.88,-1.65);
+    // dining table, four chairs and tabletop objects
+    addBox(parent,1.28,.1,.78,oak,0,y+.78,.48);
+    for(const x of [-.52,.52]) for(const z of [.2,.76]) addBox(parent,.07,.66,.07,wood,x,y+.42,z);
+    for(const x of [-.88,.88]) {addBox(parent,.42,.08,.42,upholstery,x,y+.48,.48);addBox(parent,.42,.5,.08,wood,x,y+.73,.27);}
+    const bowl=new THREE.Mesh(new THREE.SphereGeometry(.16,14,8,0,Math.PI*2,0,Math.PI/2),ceramic);bowl.position.set(.05,y+.9,.48);parent.add(bowl);
+    const pendant=new THREE.Mesh(new THREE.ConeGeometry(.2,.24,16,1,true),mat('#c7a46d',.35,.35));pendant.position.set(0,y+1.92,.48);pendant.rotation.x=Math.PI;parent.add(pendant);
+    // RIGHT BAY — bedroom: upholstered bed, folded linen, side tables, wardrobe and mirror.
+    addBox(parent,2.25,.045,1.65,mat('#c8b9a2'),2.72,y+.19,.78);
+    addBox(parent,1.55,.28,1.78,wood,2.72,y+.36,-.25);
+    addBox(parent,1.62,.5,.13,upholstery,2.72,y+.68,-1.12);
+    addBox(parent,1.48,.12,1.48,linen,2.72,y+.58,-.22);
+    for(const x of [2.28,3.05]) addBox(parent,.52,.12,.36,linen,x,y+.72,-.7);
+    addBox(parent,.5,.56,.46,oak,1.65,y+.48,.7);
+    addBox(parent,.5,.56,.46,oak,3.78,y+.48,.7);
+    for(const x of [1.65,3.78]) {const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.2,14),brass);lamp.position.set(x,y+.86,.7);parent.add(lamp);}
+    addBox(parent,.78,1.9,.58,wood,3.78,y+1.12,-2.15);
+    for(const yy of [.72,1.15,1.58]) addBox(parent,.68,.025,.04,brass,3.78,y+yy,-1.84);
+    addPlant(3.82,1.9);
+    // Balcony planters and a small laundry rail make the apartments feel inhabited.
+    addBox(parent,1.5,.24,.28,mat('#9b7655'),0,y+.34,3.35);
+    for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.55+i*.27,y+.55,3.35);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
+    addBox(parent,1.55,.045,.045,brass,2.45,y+1.45,3.45);
+    for(let i=0;i<3;i++) addBox(parent,.045,.55,.045,mat('#eee8d9'),2.1+i*.28,y+1.15,3.45);
 
+    // Registered marketplace goods replace matching furniture positions in the correct room.
     listings.forEach(listing=>{
       const product=products.find(p=>p.id===listing.productId);
       if(!product) return;
@@ -297,15 +345,16 @@ export class CommunityWorld {
       object.userData.room=listing.room;
       object.traverse(child=>{if((child as THREE.Mesh).isMesh){child.userData.productId=product.id;child.userData.buildingId=record.id;}});
       parent.add(object); this.productObjects.set(product.id,object); this.pickables.push(object);
-      // Attempt an optional GLB replacement when a model asset exists; fallback stays visible.
+      // Optional local GLB can replace this clearly-labelled proxy when the asset is provided.
       this.loader.load('/models/'+listing.display+'.glb',gltf=>{
         if(this.disposed || !this.productObjects.has(product.id)) return;
         const loaded=gltf.scene; loaded.scale.setScalar(.8); loaded.position.copy(object.position);
         parent.remove(object); parent.add(loaded); this.productObjects.set(product.id,loaded);
         loaded.userData.productId=product.id; loaded.userData.buildingId=record.id;
         loaded.traverse(child=>{if((child as THREE.Mesh).isMesh){child.userData.productId=product.id;child.userData.buildingId=record.id;}});
+        this.pickables=this.pickables.filter(item=>item!==object);this.pickables.push(loaded);
         if(gltf.animations.length){const mixer=new THREE.AnimationMixer(loaded);gltf.animations.forEach(clip=>mixer.clipAction(clip).play());this.mixers.push(mixer);}
-      },undefined,()=>{/* No bundled GLB yet: keep the detailed procedural proxy. */});
+      },undefined,()=>{/* No local GLB supplied; keep proxy visible. */});
     });
   }
 
