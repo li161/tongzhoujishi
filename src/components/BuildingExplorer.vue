@@ -32,6 +32,8 @@ const hoverBuilding=computed(()=>hover.value?.kind==='building'?currentBuildings
 
 function onPick(kind:'building'|'product'|null,id?:string,point?:THREE.Vector3) {
   if(!kind||!id){hover.value=null;return;}
+  if(kind==='building' && world.value?.getMode()==='building') { selectedBuildingId.value=id; selectedProductId.value=null; }
+  if(kind==='product' && world.value?.getMode()==='product') { selectedProductId.value=id; }
   hover.value={kind,id,x:window.innerWidth*.55,y:window.innerHeight*.48};
 }
 function pointerMove(event:PointerEvent){
