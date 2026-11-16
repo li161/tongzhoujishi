@@ -224,6 +224,13 @@ export class CommunityWorld {
       const y=f*floorH;
       addBox(group,width,.19,depth,slabEdge,0,y+.02,0);
       addBox(group,width-.24,.055,depth-.22,wood,0,y+.145,0);
+      // Subtle timber-board joints give the floor a domestic scale instead of a single flat slab.
+      const floorJoint=mat('#6e543f',.92);
+      for(let plank=-3.75;plank<=3.75;plank+=.48) addBox(group,.012,.008,depth-.34,floorJoint,plank,y+.178,0);
+      for(let row=-2;row<=2;row++) {
+        const seamX=row%2===0?-.95: .95;
+        addBox(group,.012,.008,.018,floorJoint,seamX,y+.178,row*.92);
+      }
       // A dark exposed ceiling beam gives every apartment a clear architectural outline.
       addBox(group,width,.12,.18,darkFrame,0,y+floorH-.08,frontZ-.1);
       // Rear windows with deep reveals and mullions.
@@ -275,11 +282,12 @@ export class CommunityWorld {
       // Fine architectural details: skirting, door jambs, switches and socket plates.
       // These small scale cues make the apartments read as finished homes rather than a model shell.
       addBox(group,width-.5,.075,.045,mat('#8d7964'),0,y+.24,-depth/2+.17);
-      for(const doorX of [-1.42,1.42]) {
-        const jambMat=mat('#8d7257');
-        for(const side of [-1,1]) addBox(group,.055,1.98,.075,jambMat,doorX+side*.43,y+1.02,.72);
-        addBox(group,.92,.055,.075,jambMat,doorX,y+2.01,.72);
-      }
+      const doorX=plan===0?-1.42:1.42;
+      const doorZ=plan===0?.64:.73;
+      const jambMat=mat('#8d7257');
+      // The two vertical jambs sit at the ends of the actual wall opening, not across the wall.
+      for(const side of [-1,1]) addBox(group,.075,1.98,.055,jambMat,doorX,y+1.02,doorZ+side*.34);
+      addBox(group,.075,.055,.74,jambMat,doorX,y+2.01,doorZ);
       for(const x of [-3.95,-.85,1.95]) {
         addBox(group,.12,.2,.025,mat('#eee8dc'),x,y+.92,frontZ-.22);
         addBox(group,.055,.075,.018,mat('#b8aa93'),x,y+.92,frontZ-.195);
