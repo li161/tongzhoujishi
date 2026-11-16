@@ -139,7 +139,7 @@ function makeFoldingTable(x:number,z:number,product:Product,index:number,loader:
   box(frameGroup,[.62,.72,.07],[0,.36,0],frameMat);
   const photo=new THREE.Mesh(new THREE.PlaneGeometry(.54,.58),new THREE.MeshBasicMaterial({color:'#c8c1b2'}));
   photo.position.set(0,.36,.041);frameGroup.add(photo);
-  loader.load(product.image,tex=>{if(disposed){tex.dispose();return;}tex.colorSpace=THREE.SRGBColorSpace;photo.material=new THREE.MeshBasicMaterial({map:tex});});
+  loader.load(product.image,(tex: THREE.Texture)=>{if(disposed){tex.dispose();return;}tex.colorSpace=THREE.SRGBColorSpace;photo.material=new THREE.MeshBasicMaterial({map:tex});});
   const price=box(frameGroup,[.58,.12,.035],[0,.02,.06],mat('#eee5d3'),false);
   const hit=new THREE.Mesh(new THREE.PlaneGeometry(.64,.76),new THREE.MeshBasicMaterial({transparent:true,opacity:0,side:THREE.DoubleSide}));
   hit.position.set(0,.36,.1);frameGroup.add(hit);hitTargets.push(hit);productByObject.set(hit,product);
@@ -206,7 +206,7 @@ function up(){pointerDown=false;}
 function click(e:PointerEvent){if(moved||!host.value)return;const r=host.value.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(hitTargets,false)[0];const p=hit?productByObject.get(hit.object):undefined;if(p)emit('select',p);}
 function wheel(e:WheelEvent){yaw=THREE.MathUtils.clamp(yaw+e.deltaY*.0009,-.85,.85);}
 onMounted(()=>{build();if(host.value){observer=new ResizeObserver(resize);observer.observe(host.value);}});
-onBeforeUnmount(()=>{disposed=true;cancelAnimationFrame(frame);observer?.disconnect();renderer?.dispose();scene?.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const m=o.material;if(Array.isArray(m))m.forEach(x=>x.dispose());else m.dispose();}});});
+onBeforeUnmount(()=>{disposed=true;cancelAnimationFrame(frame);observer?.disconnect();renderer?.dispose();scene?.traverse((o: THREE.Object3D)=>{if(o instanceof THREE.Mesh){o.geometry.dispose();const m=o.material;if(Array.isArray(m))m.forEach(x=>x.dispose());else m.dispose();}});});
 </script>
 
 <template>
