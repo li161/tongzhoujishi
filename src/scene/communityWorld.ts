@@ -446,9 +446,9 @@ export class CommunityWorld {
     const group=this.buildingGroups.get(id); if(!group)return;
     this.mode='building'; this.selectedBuilding=id;
     const worldPos=new THREE.Vector3(); group.getWorldPosition(worldPos);
-    gsap.to(this.camera.position,{x:worldPos.x+8,y:worldPos.y+9,z:worldPos.z+15,duration:1.15,ease:'power3.inOut'});
-    gsap.to(this.controls.target,{x:worldPos.x,y:worldPos.y+7,z:worldPos.z,duration:1.15,ease:'power3.inOut',onUpdate:()=>this.controls.update()});
-    this.controls.minDistance=8;this.controls.maxDistance=24;
+    gsap.to(this.camera.position,{x:worldPos.x+1.8,y:worldPos.y+8.2,z:worldPos.z+25,duration:1.15,ease:'power3.inOut'});
+    gsap.to(this.controls.target,{x:worldPos.x,y:worldPos.y+7.6,z:worldPos.z,duration:1.15,ease:'power3.inOut',onUpdate:()=>this.controls.update()});
+    this.controls.minDistance=14;this.controls.maxDistance=32;
     this.buildingGroups.forEach((other,key)=>{
       const selected=key===id;
       other.traverse(obj=>{
