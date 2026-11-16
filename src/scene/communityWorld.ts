@@ -56,8 +56,8 @@ export class CommunityWorld {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.02;
-    this.scene.background = new THREE.Color('#d8e0dc');
-    this.scene.fog = new THREE.Fog('#d8e0dc', 35, 100);
+    this.scene.background = new THREE.Color('#171b1d');
+    this.scene.fog = new THREE.Fog('#171b1d', 48, 115);
     this.camera.position.set(18, 17, 25);
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
@@ -75,9 +75,9 @@ export class CommunityWorld {
   private setupLights() {
     // Late-afternoon exterior: keep ambient illumination restrained so the
     // warm apartments read as luminous rooms instead of evenly lit display boxes.
-    this.scene.add(new THREE.HemisphereLight('#dce8ee', '#555044', .72));
-    this.scene.add(new THREE.AmbientLight('#c9d4d8', .28));
-    const sun = new THREE.DirectionalLight('#ffe0b5', 2.35);
+    this.scene.add(new THREE.HemisphereLight('#c8d2d2', '#27211d', .48));
+    this.scene.add(new THREE.AmbientLight('#8e9896', .22));
+    const sun = new THREE.DirectionalLight('#f4d5ad', 1.7);
     sun.position.set(-18, 25, 22);
     sun.castShadow = true;
     sun.shadow.mapSize.set(3072,3072);
@@ -87,9 +87,9 @@ export class CommunityWorld {
     sun.shadow.normalBias=.025;
     sun.shadow.radius=4;
     this.scene.add(sun);
-    const skyFill = new THREE.DirectionalLight('#b8d0df', .42);
+    const skyFill = new THREE.DirectionalLight('#9eafb6', .28);
     skyFill.position.set(18,13,-20); this.scene.add(skyFill);
-    const frontBounce = new THREE.DirectionalLight('#f4c995', .32);
+    const frontBounce = new THREE.DirectionalLight('#f2b979', .48);
     frontBounce.position.set(0,8,24); this.scene.add(frontBounce);
   }
 
@@ -109,32 +109,42 @@ export class CommunityWorld {
   private buildCommunity(id:string, products:Product[]) {
     this.root.clear(); this.buildingGroups.clear(); this.productObjects.clear();
     this.buildingMeshes=[]; this.pickables=[];
-    const groundMat=mat('#b8b9a8'), concrete=mat('#c7c8be'), pathMat=mat('#aaa99d');
-    const lawnMat=mat('#788e6c'), white=mat('#e6e1d5'), asphalt=mat('#666c68');
-    addBox(this.root,48,.35,36,groundMat,0,-.3,-1);
-    addBox(this.root,48,.12,12,asphalt,0,-.08,9);
-    addBox(this.root,48,.08,3,pathMat,0,.02,1.5);
-    addBox(this.root,48,.08,2,pathMat,0,.02,-7);
-    // Sidewalk paving joints and parking bays
-    for(let x=-22;x<=22;x+=2.2) addBox(this.root,.025,.012,11,mat('#8b8d83'),x,.0,9);
-    for(let x=-19;x<=19;x+=3.3) {
-      const line=addBox(this.root,.055,.018,4.5,white,x,.02,10.5);
-      line.material=white;
+    // Presentation environment: an architectural night-gallery stage, not a plain suburban lawn.
+    // The neighborhood shell is intentionally subdued so the illuminated homes remain the subject.
+    const groundMat=mat('#292c2b',.94), concrete=mat('#393b38',.9), pathMat=mat('#514b43',.86);
+    const plinthEdge=mat('#171a19',.58,.18), warmInlay=mat('#b58b5b',.38,.42);
+    addBox(this.root,54,.55,42,groundMat,0,-.42,-1);
+    addBox(this.root,50,.12,28,concrete,0,-.08,-1);
+    // Large-format stone joints and a restrained brass perimeter line create a gallery-like base.
+    for(let x=-24;x<=24;x+=4) addBox(this.root,.018,.012,27,mat('#55534c'),x,-.012,-1);
+    for(let z=-13;z<=11;z+=4) addBox(this.root,49,.012,.018,mat('#55534c'),0,-.012,z);
+    addBox(this.root,50,.035,.055,warmInlay,0,.005,12.8);
+    addBox(this.root,50,.035,.055,warmInlay,0,.005,-14.8);
+    // Low, warm architectural grazing lights sit at the edge of the model stage.
+    for(const x of [-21,-14,-7,0,7,14,21]) {
+      const light=new THREE.PointLight('#e9b77e',.65,7,2);
+      light.position.set(x,.45,12.1); this.root.add(light);
+      const marker=new THREE.Mesh(new THREE.BoxGeometry(.42,.06,.16),new THREE.MeshStandardMaterial({color:'#e8c18d',emissive:'#bd8750',emissiveIntensity:1.1,roughness:.35}));
+      marker.position.set(x,.18,12.1); this.root.add(marker);
     }
-    this.addLandscape(lawnMat,concrete);
     const records=buildingRecords.filter(b=>b.communityId===id);
     records.forEach((record,index)=>{
       const group=this.createBuilding(record,products,index===1);
       group.position.set(...record.position);
       this.root.add(group); this.buildingGroups.set(record.id,group);
     });
-    this.addCars();
-    this.addPlayground();
-    // distant residential blocks add a real sense of neighborhood depth
-    for(let i=0;i<5;i++) {
-      const distant=this.createDistantBlock(i);
-      distant.position.set(-24+i*12,0,-22);
-      this.root.add(distant);
+    // A quiet, dark architectural backdrop replaces toy-like cars, playground props and primitive trees.
+    for(let i=0;i<7;i++) {
+      const silhouette=new THREE.Group();
+      const width=5.5+(i%3)*1.8, height=12+(i%4)*2.2;
+      const shell=mat(i%2?'#303432':'#353633',.96);
+      addBox(silhouette,width,height,2.4,shell,0,height/2,0);
+      for(let floor=0;floor<Math.floor(height/2.7);floor++) for(let col=0;col<3;col++) {
+        const windowMat=new THREE.MeshStandardMaterial({color:'#5a5145',emissive:'#a56e3e',emissiveIntensity:(floor+col+i)%4===0?.24:.035,roughness:.5});
+        addBox(silhouette,.58,1.12,.035,windowMat,-width*.32+col*width*.32,1.4+floor*2.7,1.22);
+      }
+      silhouette.position.set(-34+i*11,0,-27);
+      this.root.add(silhouette);
     }
   }
 
