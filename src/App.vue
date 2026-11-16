@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useCommunityStore } from './stores/community';
+import NeighborhoodScene from './components/NeighborhoodScene.vue';
 import { communities, communityById, wants, type Product } from './data/market';
 import { MapPin, Sparkles, ArrowUpRight, X, Heart, MessageCircle, ChevronRight, Bot, MoveHorizontal, Plus } from 'lucide-vue-next';
 
@@ -54,36 +55,7 @@ function askGuide() {
       <div class="intro-bottom"><span class="weather-mark">☀</span><span>邻里好物循环中</span><b>{{store.localProducts.length + 18}} 件</b><small>正在这个社区流转</small></div>
     </section>
 
-    <section class="street-scene" :class="{dragging}" @pointerdown="onPointerDown" @pointerleave="onPointerUp">
-      <div class="scene-sky"></div>
-      <div class="distant-towers" :style="{transform:`translateX(${pointerX * -7}px)`}"><i v-for="n in 8" :key="n"></i></div>
-      <div class="sun-glow"></div>
-      <div class="street-sign"><span>次渠</span><small>邻里生活街</small></div>
-      <div class="scene-lantern lantern-a">拾</div><div class="scene-lantern lantern-b">好</div>
-      <div class="street-ground"><div class="ground-line"></div><div class="ground-line second"></div></div>
-      <div class="street-track" :style="{transform:`translateX(${dragOffset + pointerX * -12}px)`}">
-        <div class="stall stall-first"><div class="stall-awning"><span>邻里旧物</span><i></i><i></i><i></i></div><div class="stall-roof"></div><div class="stall-body"><div class="stall-shelf"></div><div class="stall-items"><span class="vase"></span><span class="lamp"></span><span class="box"></span></div><div class="stall-counter"></div></div><div class="stall-caption"><b>街坊旧物铺</b><small>小物件 · 好日常</small></div></div>
-        <div class="stall stall-products" v-for="(group, gi) in grouped" :key="group.name">
-          <div class="stall-awning" :class="'awning-'+gi"><span>{{group.name}}</span><i></i><i></i><i></i></div>
-          <div class="stall-roof"></div>
-          <div class="stall-body">
-            <div class="stall-shelf"></div>
-            <div class="stall-goods">
-              <button v-for="(p, pi) in group.items" :key="p.id" class="good-object" :class="'good-'+((gi+pi)%5)" @click.stop="selected=p" :aria-label="'查看'+p.title">
-                <img :src="p.image" :alt="p.title"/>
-                <span class="good-price">¥{{p.price}}</span>
-              </button>
-            </div>
-            <div class="stall-counter"></div>
-          </div>
-          <div class="stall-caption"><b>{{group.name}}小摊</b><small>{{group.items.length}} 件好物 · 点物品看看</small></div>
-        </div>
-        <div class="stall stall-last"><div class="stall-awning awning-green"><span>邻里留言板</span><i></i><i></i><i></i></div><div class="notice-board"><b>正在寻找</b><div v-for="w in currentWants.slice(0,2)" :key="w.id">「{{w.title}}」</div><small>让需要被看见</small></div><div class="stall-caption"><b>心愿交换站</b><small>发布你的求购心愿</small></div></div>
-      </div>
-      <div class="scene-vignette"></div>
-      <div class="drag-hint"><MoveHorizontal :size="15"/> 按住画面，左右逛一逛</div>
-      <div class="scene-index"><b>01</b><i></i><span>邻里街巷</span></div>
-    </section>
+    <NeighborhoodScene :key="store.activeId" :products="visibleProducts" :community-name="store.active.name" :scene="store.active.scene" :accent="store.active.accent" @select="selected=$event" />
 
     <div class="explore-bar">
       <div class="explore-copy"><span class="live-dot"></span><b>今天的邻里摊位</b><small>点一件物品，看看它的故事</small></div>
