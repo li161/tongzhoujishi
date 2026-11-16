@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { furnitureAssets, prepareFurnitureAsset, type FurnitureAssetKind } from './modelAssets';
 import { gsap } from 'gsap';
 import { buildingRecords, type BuildingRecord, type RoomListing } from '../data/buildings';
 import type { Product } from '../data/market';
@@ -539,16 +540,36 @@ export class CommunityWorld {
       object.userData.room=listing.room;
       object.traverse(child=>{if((child as THREE.Mesh).isMesh){child.userData.productId=product.id;child.userData.buildingId=record.id;}});
       parent.add(object); this.productObjects.set(product.id,object); this.pickables.push(object);
-      // Optional local GLB can replace this clearly-labelled proxy when the asset is provided.
-      this.loader.load('/models/'+listing.display+'.glb',gltf=>{
-        if(this.disposed || !this.productObjects.has(product.id)) return;
-        const loaded=gltf.scene; loaded.scale.setScalar(.8); loaded.position.copy(object.position);
-        parent.remove(object); parent.add(loaded); this.productObjects.set(product.id,loaded);
-        loaded.userData.productId=product.id; loaded.userData.buildingId=record.id;
-        loaded.traverse(child=>{if((child as THREE.Mesh).isMesh){child.userData.productId=product.id;child.userData.buildingId=record.id;}});
-        this.pickables=this.pickables.filter(item=>item!==object);this.pickables.push(loaded);
-        if(gltf.animations.length){const mixer=new THREE.AnimationMixer(loaded);gltf.animations.forEach(clip=>mixer.clipAction(clip).play());this.mixers.push(mixer);}
-      },undefined,()=>{/* No local GLB supplied; keep proxy visible. */});
+      // Imported GLB assets replace the procedural proxy only after successful
+      // loading and normalization. Until then, the proxy remains visible and pickable.
+      const assetKind=listing.display as FurnitureAssetKind;
+      const asset=furnitureAssets[assetKind];
+      this.loader.load(asset.path,gltf=>{
+        if(this.disposed || this.productObjects.get(product.id)!==object) return;
+        const loaded=prepareFurnitureAsset(gltf,assetKind);
+        loaded.position.copy(object.position);
+        loaded.userData.productId=product.id;
+        loaded.userData.buildingId=record.id;
+        loaded.userData.room=listing.room;
+        loaded.traverse(child=>{
+          if((child as THREE.Mesh).isMesh){
+            child.userData.productId=product.id;
+            child.userData.buildingId=record.id;
+          }
+        });
+        parent.remove(object);
+        parent.add(loaded);
+        this.productObjects.set(product.id,loaded);
+        this.pickables=this.pickables.filter(item=>item!==object);
+        this.pickables.push(loaded);
+        if(gltf.animations.length){
+          const mixer=new THREE.AnimationMixer(loaded);
+          gltf.animations.forEach(clip=>mixer.clipAction(clip).play());
+          this.mixers.push(mixer);
+        }
+      },undefined,()=>{
+        // No asset in public/models: keep the visible, clearly procedural proxy.
+      });
     });
   }
 
