@@ -232,12 +232,40 @@ export class CommunityWorld {
           curtain.rotation.z=dx<0?-.025:.025;
         }
       }
-      // Apartment partitions: three connected but distinct rooms.
-      addBox(group,.12,2.18,2.05,plaster,-1.42,y+1.22,.72);
-      addBox(group,.12,2.18,2.05,plaster,1.42,y+1.22,.72);
-      // Short return walls and door openings at the back.
-      addBox(group,1.12,2.12,.12,plaster,-2.7,y+1.18,-.35);
-      addBox(group,1.12,2.12,.12,plaster,2.7,y+1.18,-.35);
+      // Each household has a different internal plan, not just different props.
+      // Partitions are segmented around real door openings; some homes are more open-plan.
+      const partition=(x:number,z:number,length:number,height:number,offsetY=0)=>{
+        addBox(group,.12,height,length,plaster,x,y+offsetY+height/2,z);
+      };
+      const plan=f%4;
+      if(plan===0) {
+        // Family home: open living/dining connection, private bedroom wall at the rear.
+        partition(-1.42,-.05,.72,2.08);
+        partition(-1.42,1.36,.78,2.08);
+        partition(1.42,.72,2.05,2.08);
+        partition(-2.7,-.88,.72,2.08);
+        partition(2.7,-.88,.72,2.08);
+      } else if(plan===1) {
+        // Child household: three enclosed rooms with offset doorways and a wider playroom opening.
+        partition(-1.42,.72,2.05,2.08);
+        partition(1.42,-.02,.72,2.08);
+        partition(1.42,1.43,.62,2.08);
+        partition(-2.7,-.9,.68,2.08);
+        partition(2.7,-.9,.68,2.08);
+      } else if(plan===2) {
+        // Older household: tea/living room is separated, kitchen and bedroom connect through a broad opening.
+        partition(-1.42,.72,2.05,2.08);
+        partition(1.42,-.04,.72,2.08);
+        partition(1.42,1.4,.68,2.08);
+        partition(-2.7,-.88,.72,2.08);
+        partition(2.7,-.88,.72,2.08);
+      } else {
+        // Young renter: open-plan work/living space with a low divider and a screened sleeping nook.
+        partition(-1.42,.72,2.05,1.18);
+        partition(1.42,-.02,.72,2.08);
+        partition(1.42,1.43,.62,2.08);
+        partition(2.7,-.88,.72,2.08);
+      }
       // Keep the cutaway edge completely open: no continuous balcony slab or railing.
       // A full-width guardrail made the elevation read like an exterior corridor.
       // Small domestic details stay inside each apartment instead of crossing the section.
