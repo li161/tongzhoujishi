@@ -172,20 +172,85 @@ function makeBenchAndPlanters() {
     for(let i=0;i<5;i++) sphere(planter,.22,[-.55+i*.27,.62,(i%2)*.2],mat(i%2?'#536f50':'#7b8b64'),[1,1.6,1]);
   }
 }
+
+function makePlasticStool(x:number,z:number,color:string) {
+  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const seat=mat(color,.92),leg=mat('#55564f',.72);
+  box(g,[.48,.09,.43],[0,.48,0],seat);
+  for(const sx of [-.17,.17]) for(const sz of [-.14,.14]) {
+    const l=cylinder(g,.022,.46,[sx,.24,sz],leg,8);l.rotation.z=sx*.08;
+  }
+  box(g,[.28,.035,.06],[0,.29,-.18],seat,false);
+}
+function makeCrates(x:number,z:number,count:number) {
+  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const wood=mat('#98734e',.98),dark=mat('#644d37');
+  for(let i=0;i<count;i++) {
+    const y=(i%2)*.34,xx=Math.floor(i/2)*.43;
+    box(g,[.42,.31,.42],[xx,y+.16,0],wood);
+    for(let k=0;k<4;k++) box(g,[.035,.25,.44],[xx-.16+k*.105,y+.16,.015],dark,false);
+    box(g,[.44,.035,.44],[xx,y+.32,0],dark,false);
+  }
+}
+function makeWasteStation(x:number,z:number) {
+  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const body=mat('#6c8170',.96),lid=mat('#424f47');
+  box(g,[.68,.92,.62],[0,.48,0],body);
+  box(g,[.72,.09,.66],[0,.96,0],lid);
+  box(g,[.34,.055,.035],[0,.82,.32],mat('#d8d4c7'),false);
+  for(const sx of [-.22,.22]) cylinder(g,.09,.07,[sx,.08,.12],mat('#333a35'),12).rotation.x=Math.PI/2;
+}
+function makeLaundryAndWires() {
+  const poleMat=mat('#5c5d56',.65,.35),wireMat=mat('#292f2e',.8);
+  const pole=new THREE.Group();pole.position.set(-12,0,-8.7);scene.add(pole);
+  cylinder(pole,.055,7,[0,3.5,0],poleMat,10);
+  box(pole,[.12,.12,1.1],[0,6.7,.15],poleMat,false);
+  const wire=(a:THREE.Vector3,b:THREE.Vector3,sag:number)=>{
+    const curve=new THREE.QuadraticBezierCurve3(a,new THREE.Vector3((a.x+b.x)/2,(a.y+b.y)/2-sag,(a.z+b.z)/2),b);
+    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,28,.012,5,false),wireMat);scene.add(mesh);
+  };
+  wire(new THREE.Vector3(-12,6.7,-8.5),new THREE.Vector3(11,6.1,-8.4),.5);
+  wire(new THREE.Vector3(-12,6.25,-8.2),new THREE.Vector3(11,6.55,-8.1),.28);
+  const clothColors=['#d8d0bd','#a8b6b8','#c6a69a','#e4dfd1'];
+  clothColors.forEach((color,i)=>{
+    const cloth=new THREE.Mesh(new THREE.PlaneGeometry(.72,.92),new THREE.MeshStandardMaterial({color,roughness:1,side:THREE.DoubleSide}));
+    cloth.position.set(-5.7+i*1.18,5.55+(i%2)*.08,-8.32);cloth.rotation.y=(i%2)*.08;cloth.castShadow=true;scene.add(cloth);
+    const hem=box(scene,[.74,.035,.025],[-5.7+i*1.18,5.08+(i%2)*.08,-8.3],mat('#8c8a7e'),false);
+  });
+}
+function makeEverydayClutter() {
+  makePlasticStool(-3.2,1.35,'#b65f45');
+  makePlasticStool(3.4,1.7,'#647b68');
+  makePlasticStool(7.6,-.3,'#a5a094');
+  makeCrates(-8.4,1.1,3);
+  makeCrates(5.2,1.2,2);
+  makeWasteStation(-10.2,2.8);
+  // A small handcart and a folded moving blanket make the market feel like neighbors brought items from home.
+  const cart=new THREE.Group();cart.position.set(9.1,0,2.3);scene.add(cart);
+  const frame=mat('#555b56',.55,.55),wood=mat('#9a7956');
+  box(cart,[.9,.08,.62],[0,.55,0],wood);
+  for(const sx of [-.38,.38]) {
+    const handle=cylinder(cart,.025,.85,[sx,.95,-.25],frame,8);handle.rotation.x=-.2;
+    const wheel=new THREE.Mesh(new THREE.TorusGeometry(.19,.035,8,20),mat('#303331'));
+    wheel.position.set(sx,.22,.22);wheel.rotation.y=Math.PI/2;cart.add(wheel);
+  }
+  box(cart,[.72,.035,.56],[0,.63,0],mat('#b7a58b'),false);
+}
+
 function build() {
   if(!host.value)return;
-  scene=new THREE.Scene();scene.background=new THREE.Color('#b9c4c0');scene.fog=new THREE.Fog('#b9c4c0',22,48);
+  scene=new THREE.Scene();scene.background=new THREE.Color('#aebbb5');scene.fog=new THREE.Fog('#aebbb5',25,56);
   camera=new THREE.PerspectiveCamera(47,host.value.clientWidth/host.value.clientHeight,.1,120);
-  camera.position.set(0,4.1,12.5);camera.lookAt(0,1.2,-2);
+  camera.position.set(0,4.5,15.2);camera.lookAt(0,1.45,-2.7);
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.65));renderer.setSize(host.value.clientWidth,host.value.clientHeight);
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
   host.value.appendChild(renderer.domElement);
-  scene.add(new THREE.HemisphereLight('#e7ece7','#5e594e',1.75));
-  const sun=new THREE.DirectionalLight('#fff0d7',2.4);sun.position.set(-7,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1536,1536);scene.add(sun);
+  scene.add(new THREE.HemisphereLight('#e7ece7','#5e594e',1.35));
+  const sun=new THREE.DirectionalLight('#fff0d7',2.0);sun.position.set(-7,12,8);sun.castShadow=true;sun.shadow.mapSize.set(1536,1536);scene.add(sun);
   makePaving();makeApartmentFacade();makeBenchAndPlanters();
-  makeTree(-11,-3);makeTree(11,-4);makeBicycle(-7,2.1);makeScooter(8,2.2);
+  makeTree(-11,-3);makeTree(11,-4);makeBicycle(-7,2.1);makeScooter(8,2.2);makeLaundryAndWires();makeEverydayClutter();
   const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');
   const placements=[[-6.1,-1.0],[0,-2.2],[6.0,-.7],[10,-1.8]] as const;
   props.products.slice(0,4).forEach((p,i)=>makeFoldingTable(placements[i][0],placements[i][1],p,i,loader));
@@ -193,11 +258,11 @@ function build() {
 }
 function animate(){
   frame=requestAnimationFrame(animate);if(!renderer)return;
-  const radius=12.8;
+  const radius=15.2;
   camera.position.x+=(Math.sin(yaw)*radius-camera.position.x)*.045;
-  camera.position.y+=(4.05+pitch*2-camera.position.y)*.045;
+  camera.position.y+=(4.45+pitch*2-camera.position.y)*.045;
   camera.position.z+=(Math.cos(yaw)*radius-camera.position.z)*.045;
-  camera.lookAt(0,1.25,-2.2);renderer.render(scene,camera);
+  camera.lookAt(0,1.45,-2.7);renderer.render(scene,camera);
 }
 function resize(){if(!host.value||!renderer||!camera)return;camera.aspect=host.value.clientWidth/host.value.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.value.clientWidth,host.value.clientHeight);}
 function down(e:PointerEvent){pointerDown=true;moved=false;startX=e.clientX;startY=e.clientY;startYaw=yaw;startPitch=pitch;host.value?.setPointerCapture(e.pointerId);}
@@ -218,11 +283,11 @@ onBeforeUnmount(()=>{disposed=true;cancelAnimationFrame(frame);observer?.disconn
 </template>
 
 <style scoped>
-.neighborhood-3d{height:510px;position:relative;overflow:hidden;background:#b9c4c0;cursor:grab;touch-action:pan-y;border:1px solid #b7b1a3;box-shadow:0 22px 55px #39362d24}
+.neighborhood-3d{height:570px;position:relative;overflow:hidden;background:#b9c4c0;cursor:grab;touch-action:pan-y;border:1px solid #b7b1a3;box-shadow:0 22px 55px #39362d24}
 .neighborhood-3d:active{cursor:grabbing}.neighborhood-3d canvas{display:block;width:100%;height:100%}
 .scene-hud{position:absolute;top:17px;left:18px;display:flex;align-items:center;gap:9px;padding:9px 13px;background:#272d2ad9;color:#f2eee5;border:1px solid #ffffff35;pointer-events:none;font-size:12px}
 .scene-hud i{height:14px;width:1px;background:#ffffff55}.scene-hud small{font-size:10px;color:#d5d0c4}.hud-live{width:7px;height:7px;border-radius:50%;background:#9eb28b;box-shadow:0 0 0 4px #9eb28b22}
 .scene-bottom{position:absolute;left:18px;bottom:17px;right:18px;display:flex;justify-content:space-between;align-items:center;color:#fff;text-shadow:0 2px 8px #242722;font-size:11px;pointer-events:none}.scene-bottom small{font-size:10px}
 .scene-loading{position:absolute;inset:0;display:grid;place-items:center;background:#b9c4c0;color:#424a43;font-size:12px}
-@media(max-width:700px){.neighborhood-3d{height:390px}.scene-hud{top:11px;left:10px;padding:8px 10px}.scene-hud small{display:none}.scene-bottom{left:12px;right:12px;bottom:12px;gap:12px}.scene-bottom small{max-width:55%;text-align:right}}
+@media(max-width:700px){.neighborhood-3d{height:430px}.scene-hud{top:11px;left:10px;padding:8px 10px}.scene-hud small{display:none}.scene-bottom{left:12px;right:12px;bottom:12px;gap:12px}.scene-bottom small{max-width:55%;text-align:right}}
 </style>
