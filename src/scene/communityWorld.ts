@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { gsap } from 'gsap';
-import { buildingRecords, type BuildingRecord } from '../data/buildings';
+import { buildingRecords, type BuildingRecord, type RoomListing } from '../data/buildings';
 import type { Product } from '../data/market';
 
 type ViewMode = 'overview' | 'building' | 'product';
@@ -338,8 +338,18 @@ export class CommunityWorld {
       const product=products.find(p=>p.id===listing.productId);
       if(!product) return;
       const object=this.createProductObject(listing.display,product);
-      object.position.set(...listing.anchor);
-      object.position.y+=y;
+      // Put each marketplace item in the room named by its listing, rather than
+      // blindly trusting legacy coordinates that could place it inside a partition.
+      const roomAnchor:Record<RoomListing['room'],[number,number,number]>={
+        '客厅':[-2.72,.2,1.35],
+        '书房':[-2.72,.2,-1.05],
+        '卧室':[2.72,.2,1.25],
+        '儿童房':[2.72,.2,-1.15],
+        '厨房':[0,.2,-.82],
+        '阳台':[0,.2,3.38],
+      };
+      const [rx,ry,rz]=roomAnchor[listing.room];
+      object.position.set(rx+listing.anchor[0]*.18, y+ry+listing.anchor[1]*.18, rz+listing.anchor[2]*.18);
       object.userData.productId=product.id;
       object.userData.buildingId=record.id;
       object.userData.room=listing.room;
@@ -446,9 +456,16 @@ export class CommunityWorld {
     const group=this.buildingGroups.get(id); if(!group)return;
     this.mode='building'; this.selectedBuilding=id;
     const worldPos=new THREE.Vector3(); group.getWorldPosition(worldPos);
-    gsap.to(this.camera.position,{x:worldPos.x+1.8,y:worldPos.y+8.2,z:worldPos.z+25,duration:1.15,ease:'power3.inOut'});
-    gsap.to(this.controls.target,{x:worldPos.x,y:worldPos.y+7.6,z:worldPos.z,duration:1.15,ease:'power3.inOut',onUpdate:()=>this.controls.update()});
-    this.controls.minDistance=14;this.controls.maxDistance=32;
+    // Fit the complete cutaway elevation in frame for both six- and seven-storey blocks.
+    const bounds=new THREE.Box3().setFromObject(group);
+    const size=bounds.getSize(new THREE.Vector3());
+    const center=bounds.getCenter(new THREE.Vector3()).add(worldPos);
+    const verticalFit=(size.y*.5)/Math.tan(THREE.MathUtils.degToRad(this.camera.fov*.5));
+    const horizontalFit=(size.x*.5)/(Math.tan(THREE.MathUtils.degToRad(this.camera.fov*.5))*this.camera.aspect);
+    const distance=Math.max(verticalFit,horizontalFit)*1.18+2;
+    gsap.to(this.camera.position,{x:center.x+size.x*.035,y:center.y+size.y*.035,z:center.z+distance,duration:1.15,ease:'power3.inOut'});
+    gsap.to(this.controls.target,{x:center.x,y:center.y,z:center.z,duration:1.15,ease:'power3.inOut',onUpdate:()=>this.controls.update()});
+    this.controls.minDistance=Math.max(9,distance*.68);this.controls.maxDistance=distance*1.35;
     this.buildingGroups.forEach((other,key)=>{
       const selected=key===id;
       other.traverse(obj=>{
