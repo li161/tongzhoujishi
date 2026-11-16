@@ -109,7 +109,7 @@ function makeBicycle(x:number,z:number) {
     cylinder(g,.035,.08,[wx,.42,0],metal).rotation.z=Math.PI/2;
   }
   const a=[-.62,.42,0],b=[0,.95,0],c=[.62,.42,0];
-  const rod=(p1:number[],p2:number[])=>{const d=new THREE.Vector3(p2[0]-p1[0],p2[1]-p1[1],p2[2]-p1[2]);const m=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,d.length,8),metal);m.position.set((p1[0]+p2[0])/2,(p1[1]+p2[1])/2,0);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(m);};
+  const rod=(p1:number[],p2:number[])=>{const d=new THREE.Vector3(p2[0]-p1[0],p2[1]-p1[1],p2[2]-p1[2]);const m=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,d.length(),8),metal);m.position.set((p1[0]+p2[0])/2,(p1[1]+p2[1])/2,0);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(m);};
   rod(a,b);rod(b,c);rod(a,c);rod(b,[.12,1.02,0]);rod([.12,1.02,0],[.42,1.02,0]);
   box(g,[.34,.07,.18],[.02,1.05,0],mat('#292d2a'));
 }
