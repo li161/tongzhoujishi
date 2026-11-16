@@ -410,7 +410,12 @@ export class CommunityWorld {
             const standard=m as THREE.MeshStandardMaterial;
             if('transparent' in standard) {
               const isFront=mesh.position.z>1.5;
-              if(isFront){standard.transparent=true;standard.opacity=selected ? 0.22 : 0.94;standard.depthWrite=selected?false:true;}
+              if(isFront){
+                standard.transparent=true;
+                gsap.to(standard,{opacity:selected ? 0.22 : 0.94,duration:selected?.75:.35,ease:'power2.inOut'});
+                standard.depthWrite=selected?false:true;
+                mesh.raycast=selected?(()=>{}):THREE.Mesh.prototype.raycast;
+              }
             }
           });
         }
@@ -434,7 +439,10 @@ export class CommunityWorld {
     this.mode='overview';this.selectedBuilding=null;
     this.buildingGroups.forEach(group=>group.traverse(obj=>{
       const mesh=obj as THREE.Mesh;
-      if(mesh.isMesh&&mesh.material){const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];materials.forEach(m=>{const s=m as THREE.MeshStandardMaterial;if('opacity'in s){s.opacity=1;s.transparent=false;s.depthWrite=true;}});}
+      if(mesh.isMesh){
+        mesh.raycast=THREE.Mesh.prototype.raycast;
+        if(mesh.material){const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];materials.forEach(m=>{const s=m as THREE.MeshStandardMaterial;if('opacity'in s){gsap.to(s,{opacity:1,duration:.35});s.transparent=false;s.depthWrite=true;}});}
+      }
     }));
     this.controls.minDistance=10;this.controls.maxDistance=48;
     const vars={x:18,y:17,z:25};
