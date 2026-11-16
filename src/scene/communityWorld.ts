@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { gsap } from 'gsap';
 import { buildingRecords, type BuildingRecord, type RoomListing } from '../data/buildings';
 import type { Product } from '../data/market';
@@ -14,6 +15,11 @@ const box = (w:number,h:number,d:number, material:THREE.Material) =>
   new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material);
 const addBox = (parent:THREE.Object3D, w:number,h:number,d:number, material:THREE.Material, x:number,y:number,z:number) => {
   const mesh=box(w,h,d,material); mesh.position.set(x,y,z); parent.add(mesh); return mesh;
+};
+const addSoftBox = (parent:THREE.Object3D,w:number,h:number,d:number,material:THREE.Material,x:number,y:number,z:number,radius=.07) => {
+  const bevel=Math.min(radius,w*.22,h*.22,d*.22);
+  const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,3,bevel),material);
+  mesh.position.set(x,y,z); mesh.castShadow=true; mesh.receiveShadow=true; parent.add(mesh); return mesh;
 };
 
 export class CommunityWorld {
@@ -266,6 +272,18 @@ export class CommunityWorld {
         partition(1.42,1.43,.62,2.08);
         partition(2.7,-.88,.72,2.08);
       }
+      // Fine architectural details: skirting, door jambs, switches and socket plates.
+      // These small scale cues make the apartments read as finished homes rather than a model shell.
+      addBox(group,width-.5,.075,.045,mat('#8d7964'),0,y+.24,-depth/2+.17);
+      for(const doorX of [-1.42,1.42]) {
+        const jambMat=mat('#8d7257');
+        for(const side of [-1,1]) addBox(group,.055,1.98,.075,jambMat,doorX+side*.43,y+1.02,.72);
+        addBox(group,.92,.055,.075,jambMat,doorX,y+2.01,.72);
+      }
+      for(const x of [-3.95,-.85,1.95]) {
+        addBox(group,.12,.2,.025,mat('#eee8dc'),x,y+.92,frontZ-.22);
+        addBox(group,.055,.075,.018,mat('#b8aa93'),x,y+.92,frontZ-.195);
+      }
       // Keep the cutaway edge completely open: no continuous balcony slab or railing.
       // A full-width guardrail made the elevation read like an exterior corridor.
       // Small domestic details stay inside each apartment instead of crossing the section.
@@ -336,8 +354,8 @@ export class CommunityWorld {
     const rug=(x:number,z:number,color:string)=>addBox(parent,2.05,.035,1.55,mat(color),x,y+.19,z);
     const chair=(x:number,z:number,color='#a7835e')=>{
       const finish=mat(color);
-      addBox(parent,.42,.09,.42,finish,x,y+.48,z);
-      addBox(parent,.42,.52,.07,finish,x,y+.76,z-.18);
+      addSoftBox(parent,.46,.11,.46,finish,x,y+.48,z,.055);
+      addSoftBox(parent,.46,.52,.11,finish,x,y+.76,z-.18,.055);
       for(const dx of [-.16,.16]) for(const dz of [-.15,.15]) addBox(parent,.045,.46,.045,wood,x+dx,y+.24,z+dz);
     };
     const table=(x:number,z:number,w:number,d:number,color:string)=>{
@@ -351,21 +369,21 @@ export class CommunityWorld {
     };
     const seat=(x:number,z:number,color:string)=>{
       const fabric=mat(color);
-      addBox(parent,1.25,.3,.62,fabric,x,y+.43,z);
-      addBox(parent,1.25,.48,.15,fabric,x,y+.79,z-.24);
-      for(const dx of [-.53,.53]) addBox(parent,.16,.43,.64,fabric,x+dx,y+.58,z);
+      addSoftBox(parent,1.28,.31,.66,fabric,x,y+.43,z,.12);
+      addSoftBox(parent,1.28,.5,.18,fabric,x,y+.79,z-.24,.09);
+      for(const dx of [-.53,.53]) addSoftBox(parent,.18,.43,.66,fabric,x+dx,y+.58,z,.07);
       for(const dx of [-.48,.48]) addBox(parent,.07,.34,.07,wood,x+dx,y+.19,z+.22);
       for(const dx of [-.35,.35]) {
-        const cushion=addBox(parent,.48,.12,.43,mat('#d4c8b6'),x+dx,y+.64,z+.04);
+        const cushion=addSoftBox(parent,.48,.12,.43,mat('#d4c8b6'),x+dx,y+.64,z+.04,.07);
         cushion.rotation.z=dx*.025;
       }
     };
     const bed=(x:number,z:number,cover:string)=>{
       addBox(parent,1.55,.2,1.82,wood,x,y+.28,z);
-      addBox(parent,1.55,.13,1.72,mat(cover),x,y+.48,z+.02);
-      addBox(parent,1.58,.58,.13,upholstery,x,y+.66,z-.86);
+      addSoftBox(parent,1.58,.19,1.74,mat(cover),x,y+.49,z+.02,.09);
+      addSoftBox(parent,1.58,.58,.16,upholstery,x,y+.66,z-.86,.07);
       for(const dx of [-.42,.42]) {
-        addBox(parent,.48,.12,.34,linen,x+dx,y+.64,z-.55);
+        addSoftBox(parent,.5,.13,.36,linen,x+dx,y+.64,z-.55,.06);
         addBox(parent,.07,.22,.07,wood,x+dx,y+.11,z+.72);
       }
       // Folded throw at the foot of the bed.
