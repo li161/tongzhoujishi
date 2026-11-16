@@ -412,7 +412,7 @@ export class CommunityWorld {
               const isFront=mesh.position.z>1.5;
               if(isFront){
                 standard.transparent=true;
-                gsap.to(standard,{opacity:selected ? 0.22 : 0.94,duration:selected?.75:.35,ease:'power2.inOut'});
+                gsap.to(standard,{opacity:selected ? 0.22 : 0.94,duration:selected ? 0.75 : 0.35,ease:'power2.inOut'});
                 standard.depthWrite=selected?false:true;
                 mesh.raycast=selected?(()=>{}):THREE.Mesh.prototype.raycast;
               }
