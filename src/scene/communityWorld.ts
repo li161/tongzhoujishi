@@ -375,7 +375,7 @@ export class CommunityWorld {
       for(let i=0;i<5;i++) {const leaf=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),green);leaf.position.set(-.48+i*.24,y+.55,1.92);leaf.scale.set(.65,1.5,.55);parent.add(leaf);}
     }
     // Small personal objects differ by household and make each level read as inhabited.
-    const wallArt=addBox(parent,.58,.42,.035,mat(layout===1?'#d7a85f':layout===2?'#8e765c':'#bca98b'),-3.72,y+1.62,-2.68);
+    addBox(parent,.58,.42,.035,mat(layout===1?'#d7a85f':layout===2?'#8e765c':'#bca98b'),-3.72,y+1.62,-2.68);
     if(layout===0) {
       const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.17,.24,.28,16,1,true),mat('#e6d2ae'));lamp.position.set(-3.7,y+1.55,1.1);parent.add(lamp);
     } else if(layout===1) {
