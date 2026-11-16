@@ -9,7 +9,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{ select: [product: Product] }>();
-const photo = 'https://commons.wikimedia.org/wiki/Special:FilePath/%E4%B9%8C%E9%95%87%E5%B0%8F%E巷.JPG?width=2400';
+const photo = 'https://commons.wikimedia.org/wiki/Special:FilePath/%E4%B9%8C%E9%95%87%E5%B0%8F%E%E5%B7%B7.JPG?width=2400';
 </script>
 
 <template>
