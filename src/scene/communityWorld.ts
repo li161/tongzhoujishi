@@ -334,26 +334,79 @@ export class CommunityWorld {
     // palette and clutter change by floor instead of cloning one showroom apartment.
     const layout=floor%4;
     const rug=(x:number,z:number,color:string)=>addBox(parent,2.05,.035,1.55,mat(color),x,y+.19,z);
+    const chair=(x:number,z:number,color='#a7835e')=>{
+      const finish=mat(color);
+      addBox(parent,.42,.09,.42,finish,x,y+.48,z);
+      addBox(parent,.42,.52,.07,finish,x,y+.76,z-.18);
+      for(const dx of [-.16,.16]) for(const dz of [-.15,.15]) addBox(parent,.045,.46,.045,wood,x+dx,y+.24,z+dz);
+    };
     const table=(x:number,z:number,w:number,d:number,color:string)=>{
       addBox(parent,w,.09,d,mat(color),x,y+.76,z);
       for(const dx of [-w*.38,w*.38]) for(const dz of [-d*.34,d*.34]) addBox(parent,.055,.58,.055,wood,x+dx,y+.43,z+dz);
+      chair(x-w*.34,z+d*.5); chair(x+w*.34,z+d*.5);
+      if(w>1.2){chair(x-w*.34,z-d*.5);chair(x+w*.34,z-d*.5);}
+      // A small ceramic centrepiece keeps the dining table from reading as an empty block.
+      const bowl=new THREE.Mesh(new THREE.SphereGeometry(.12,12,8,0,Math.PI*2,0,Math.PI*.5),ceramic);
+      bowl.position.set(x,y+.83,z);parent.add(bowl);
     };
     const seat=(x:number,z:number,color:string)=>{
-      addBox(parent,1.25,.32,.58,mat(color),x,y+.43,z);
-      addBox(parent,1.25,.42,.13,mat(color),x,y+.78,z-.22);
-      for(const dx of [-.53,.53]) addBox(parent,.14,.42,.58,wood,x+dx,y+.57,z);
+      const fabric=mat(color);
+      addBox(parent,1.25,.3,.62,fabric,x,y+.43,z);
+      addBox(parent,1.25,.48,.15,fabric,x,y+.79,z-.24);
+      for(const dx of [-.53,.53]) addBox(parent,.16,.43,.64,fabric,x+dx,y+.58,z);
+      for(const dx of [-.48,.48]) addBox(parent,.07,.34,.07,wood,x+dx,y+.19,z+.22);
+      for(const dx of [-.35,.35]) {
+        const cushion=addBox(parent,.48,.12,.43,mat('#d4c8b6'),x+dx,y+.64,z+.04);
+        cushion.rotation.z=dx*.025;
+      }
     };
     const bed=(x:number,z:number,cover:string)=>{
-      addBox(parent,1.48,.25,1.75,wood,x,y+.32,z);
-      addBox(parent,1.5,.12,1.68,mat(cover),x,y+.52,z+.02);
-      addBox(parent,1.52,.48,.12,upholstery,x,y+.66,z-.82);
-      for(const dx of [-.42,.42]) addBox(parent,.48,.11,.32,linen,x+dx,y+.67,z-.52);
+      addBox(parent,1.55,.2,1.82,wood,x,y+.28,z);
+      addBox(parent,1.55,.13,1.72,mat(cover),x,y+.48,z+.02);
+      addBox(parent,1.58,.58,.13,upholstery,x,y+.66,z-.86);
+      for(const dx of [-.42,.42]) {
+        addBox(parent,.48,.12,.34,linen,x+dx,y+.64,z-.55);
+        addBox(parent,.07,.22,.07,wood,x+dx,y+.11,z+.72);
+      }
+      // Folded throw at the foot of the bed.
+      addBox(parent,1.25,.045,.38,mat('#b9aa94'),x,y+.57,z+.62);
+      for(const dx of [-1.05,1.05]) {
+        addBox(parent,.42,.48,.42,oak,x+dx,y+.25,z-.72);
+        addBox(parent,.46,.055,.46,ceramic,x+dx,y+.51,z-.72);
+        const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,.22,12),mat('#e8d7b9'));
+        lamp.position.set(x+dx,y+.64,z-.72);parent.add(lamp);
+      }
     };
     const kitchen=(x:number,z:number)=>{
-      addBox(parent,2.1,.58,.62,oak,x,y+.48,z);
+      const cabinet=mat('#a9825c'), steel=mat('#9ca9a7',.25,.55);
+      // Base units, recessed toe-kick, separate door fronts and stone worktop.
+      addBox(parent,2.1,.58,.62,cabinet,x,y+.48,z);
+      addBox(parent,2.12,.09,.64,mat('#55483a'),x,y+.18,z);
       addBox(parent,2.15,.1,.68,ceramic,x,y+.82,z);
-      for(const dx of [-.62,.62]) addBox(parent,.42,.035,.34,dark,x+dx,y+.89,z);
-      addBox(parent,.38,.035,.32,mat('#9caeaa',.2,.35),x-.62,y+.92,z);
+      for(const dx of [-.7,0,.7]) {
+        addBox(parent,.64,.48,.025,oak,x+dx,y+.49,z+.326);
+        addBox(parent,.055,.035,.035,brass,x+dx+.22,y+.5,z+.35);
+      }
+      // Hob and sink are separate fixtures with visible rims.
+      addBox(parent,.52,.025,.42,dark,x-.66,y+.89,z-.02);
+      for(const dx of [-.78,-.54]) {
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(.075,.012,6,18),dark);
+        ring.rotation.x=-Math.PI/2;ring.position.set(x+dx,y+.91,z-.02);parent.add(ring);
+      }
+      addBox(parent,.42,.035,.32,steel,x+.62,y+.9,z-.04);
+      const tap=new THREE.Mesh(new THREE.TorusGeometry(.085,.018,8,18,Math.PI),steel);
+      tap.rotation.x=Math.PI/2;tap.position.set(x+.62,y+1.02,z-.25);parent.add(tap);
+      // Upper cabinets and a warm under-cabinet backsplash.
+      addBox(parent,2.05,.62,.32,oak,x,y+1.62,z-.22);
+      for(const dx of [-.68,0,.68]) {
+        addBox(parent,.62,.55,.035,cabinet,x+dx,y+1.62,z-.045);
+        addBox(parent,.045,.12,.035,brass,x+dx+.22,y+1.62,z-.015);
+      }
+      addBox(parent,2.05,.34,.035,mat('#d5c5a9'),x,y+1.08,z-.31);
+      // Compact refrigerator beside the worktop.
+      addBox(parent,.48,1.55,.52,mat('#d9ddd8',.28),x+1.35,y+.83,z-.2);
+      addBox(parent,.5,.025,.54,dark,x+1.35,y+.82,z-.2);
+      addBox(parent,.025,.32,.035,steel,x+1.52,y+1.15,z+.08);
     };
     if(layout===0) {
       // Ground-floor household: family lounge, everyday dining and master bedroom.
