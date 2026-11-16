@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick } from 'vue';
+import * as THREE from 'three';
 import { useCommunityStore } from '../stores/community';
 import { products as allProducts, wants } from '../data/market';
 import { buildingRecords, listingsForBuilding } from '../data/buildings';
@@ -113,10 +114,10 @@ onBeforeUnmount(()=>{
         <div class="scene-legend"><span><i class="legend-building"></i>住宅楼栋</span><span><i class="legend-listing"></i>有闲置发布</span><span><i class="legend-want"></i>有求购需求</span></div>
         <div class="scene-controls"><button @click="world?.resetCamera();selectedBuildingId=null;selectedProductId=null" title="回到社区全景"><RotateCcw :size="15"/></button><button @click="guideOpen=true" title="询问小拾"><Sparkles :size="15"/></button></div>
       </div>
-      <div v-if="hoverBuilding&&mode==='overview'" class="hover-card building-hover" :style="{left:Math.min((hover?.x||0)+16,window.innerWidth-220)+'px',top:Math.max((hover?.y||0)-20,100)+'px'}">
+      <div v-if="hoverBuilding&&mode==='overview'" class="hover-card building-hover" :style="{left:((hover?.x||0)+16)+'px',top:Math.max((hover?.y||0)-20,100)+'px'}">
         <small>RESIDENTIAL BUILDING</small><b>{{hoverBuilding.label}}</b><span>{{hoverBuilding.listings.filter(l=>activeCommunityProducts.some(p=>p.id===l.productId)).length}} 件闲置 · {{hoverBuilding.wants}} 条求购</span><i>点击进入楼栋剖面</i>
       </div>
-      <div v-if="hoverProduct&&mode!=='overview'" class="hover-card product-hover" :style="{left:Math.min((hover?.x||0)+16,window.innerWidth-230)+'px',top:Math.max((hover?.y||0)-20,100)+'px'}">
+      <div v-if="hoverProduct&&mode!=='overview'" class="hover-card product-hover" :style="{left:((hover?.x||0)+16)+'px',top:Math.max((hover?.y||0)-20,100)+'px'}">
         <small>{{hoverProduct.category}}</small><b>{{hoverProduct.title}}</b><span>¥{{hoverProduct.price}} · {{hoverProduct.condition}}</span>
       </div>
 
@@ -158,11 +159,6 @@ onBeforeUnmount(()=>{
     </Transition>
   </main>
 </template>
-
-<script lang="ts">
-import * as THREE from 'three';
-export default { name:'BuildingExplorer', components:{} };
-</script>
 
 <style scoped>
 .explorer-shell{min-height:100vh;background:#e9e6dc;color:#28352d;padding-bottom:56px;font-family:'DM Sans','Noto Sans SC',sans-serif}
