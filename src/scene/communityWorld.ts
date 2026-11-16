@@ -48,7 +48,7 @@ export class CommunityWorld {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.12;
+    this.renderer.toneMappingExposure = 1.02;
     this.scene.background = new THREE.Color('#d8e0dc');
     this.scene.fog = new THREE.Fog('#d8e0dc', 35, 100);
     this.camera.position.set(18, 17, 25);
@@ -66,16 +66,24 @@ export class CommunityWorld {
   }
 
   private setupLights() {
-    this.scene.add(new THREE.HemisphereLight('#f4f7f2', '#8a897b', 2.05));
-    const sun = new THREE.DirectionalLight('#fff1d8', 3.1);
-    sun.position.set(-16, 28, 18);
+    // Late-afternoon exterior: keep ambient illumination restrained so the
+    // warm apartments read as luminous rooms instead of evenly lit display boxes.
+    this.scene.add(new THREE.HemisphereLight('#dce8ee', '#555044', .72));
+    this.scene.add(new THREE.AmbientLight('#c9d4d8', .28));
+    const sun = new THREE.DirectionalLight('#ffe0b5', 2.35);
+    sun.position.set(-18, 25, 22);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(2048,2048);
-    sun.shadow.camera.left=-35; sun.shadow.camera.right=35;
-    sun.shadow.camera.top=35; sun.shadow.camera.bottom=-35;
+    sun.shadow.mapSize.set(3072,3072);
+    sun.shadow.camera.left=-30; sun.shadow.camera.right=30;
+    sun.shadow.camera.top=30; sun.shadow.camera.bottom=-30;
+    sun.shadow.bias=-.00018;
+    sun.shadow.normalBias=.025;
+    sun.shadow.radius=4;
     this.scene.add(sun);
-    const fill = new THREE.DirectionalLight('#d4e4f0', .85);
-    fill.position.set(18,12,-20); this.scene.add(fill);
+    const skyFill = new THREE.DirectionalLight('#b8d0df', .42);
+    skyFill.position.set(18,13,-20); this.scene.add(skyFill);
+    const frontBounce = new THREE.DirectionalLight('#f4c995', .32);
+    frontBounce.position.set(0,8,24); this.scene.add(frontBounce);
   }
 
   resize(width:number,height:number) {
@@ -241,11 +249,27 @@ export class CommunityWorld {
         fan.position.set(x,y+.78,frontZ+.31); group.add(fan);
         addBox(group,.035,.72,.035,mat('#a8aaa2'),x+.34,y+.45,frontZ+.08);
       }
-      // Warm practical lights, recessed ceiling spots and pendant lamps.
-      const ceilingLight=new THREE.PointLight('#ffd39b',1.15,9,1.7);
-      ceilingLight.position.set(0,y+2.15,.15); group.add(ceilingLight);
+      // Three distinct warm pools of practical light, one for each lived-in room.
+      // Small point lights and emissive fittings create visible warm interiors;
+      // cooler daylight remains outside the cutaway for a photographic contrast.
+      const roomLightPositions=[[-2.75,.72],[0,-.72],[2.75,.72]];
+      roomLightPositions.forEach(([lx,lz],index)=>{
+        const practical=new THREE.PointLight(index===1?'#ffd29a':'#ffca91',4.2,5.8,2);
+        practical.position.set(lx,y+1.92,lz);
+        practical.castShadow=false;
+        group.add(practical);
+        const bulb=new THREE.Mesh(
+          new THREE.SphereGeometry(.075,12,10),
+          new THREE.MeshStandardMaterial({color:'#fff0ce',emissive:'#ffb95f',emissiveIntensity:2.4,roughness:.3})
+        );
+        bulb.position.set(lx,y+floorH-.22,lz);
+        group.add(bulb);
+      });
       for(const x of [-3.1,0,3.1]) {
-        const downlight=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,.045,16),mat('#e8d4ad',.35));
+        const downlight=new THREE.Mesh(
+          new THREE.CylinderGeometry(.12,.16,.045,16),
+          new THREE.MeshStandardMaterial({color:'#fff0d2',emissive:'#ffc777',emissiveIntensity:1.5,roughness:.32})
+        );
         downlight.position.set(x,y+floorH-.16,.25); group.add(downlight);
       }
       this.addRoomFurniture(group,f,y,floorH,record,products);
@@ -299,7 +323,8 @@ export class CommunityWorld {
     addBox(parent,1.08,.08,.28,wood,-2.72,y+.62,-2.53);
     // Floor lamp and framed wall art.
     const lampStem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,1.45,10),brass);lampStem.position.set(-3.75,y+.92,1.1);parent.add(lampStem);
-    const lampShade=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,.3,16,1,true),linen);lampShade.position.set(-3.75,y+1.68,1.1);parent.add(lampShade);
+    const lampShade=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,.3,16,1,true),new THREE.MeshStandardMaterial({color:'#f5e4c6',emissive:'#d99548',emissiveIntensity:.55,side:THREE.DoubleSide}));lampShade.position.set(-3.75,y+1.68,1.1);parent.add(lampShade);
+    const floorLampGlow=new THREE.PointLight('#ffbf79',1.35,3.2,2);floorLampGlow.position.set(-3.75,y+1.48,1.1);parent.add(floorLampGlow);
     addBox(parent,.72,.52,.045,mat('#8b735d'),-3.72,y+1.58,-2.72);
     addBox(parent,.62,.42,.025,mat('#c7ad83'),-3.72,y+1.58,-2.68);
     addPlant(-3.85,2.1);
