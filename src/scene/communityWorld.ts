@@ -239,10 +239,17 @@ export class CommunityWorld {
         addBox(group,1.82,1.18,.035,windowGlass,x,y+1.62,-depth/2+.17);
         addBox(group,.045,1.18,.05,darkFrame,x,y+1.62,-depth/2+.2);
         addBox(group,1.82,.045,.05,darkFrame,x,y+1.62,-depth/2+.2);
-        // Curtains hang at both sides of the glazing.
-        for(const dx of [-.94,.94]) {
-          const curtain=addBox(group,.13,1.5,.055,mat('#b5a58e'),x+dx,y+1.62,-depth/2+.34);
-          curtain.rotation.z=dx<0?-.025:.025;
+        // A deep sill and a slim curtain rail make the rear glazing read as a real apartment window.
+        addBox(group,2.02,.075,.28,warmWood,x,y+.91,-depth/2+.28);
+        addBox(group,2.12,.045,.055,darkFrame,x,y+2.42,-depth/2+.37);
+        // Individually modelled fabric folds catch the warm room light instead of reading as flat panels.
+        for(const side of [-1,1]) {
+          for(let fold=0;fold<7;fold++) {
+            const localX=side*(.78+fold*.045);
+            const pleat=addSoftBox(group,.045,1.48,.085,mat(fold%2?'#b7a891':'#c6b69e',.98),x+localX,y+1.62,-depth/2+.36,.018);
+            pleat.rotation.z=side*(fold-3)*.004;
+          }
+          addBox(group,.34,.055,.11,mat('#a9967d'),x+side*.92,y+2.34,-depth/2+.36);
         }
       }
       // Each household has a different internal plan, not just different props.
@@ -367,23 +374,34 @@ export class CommunityWorld {
       for(const dx of [-.16,.16]) for(const dz of [-.15,.15]) addBox(parent,.045,.46,.045,wood,x+dx,y+.24,z+dz);
     };
     const table=(x:number,z:number,w:number,d:number,color:string)=>{
-      addBox(parent,w,.09,d,mat(color),x,y+.76,z);
-      for(const dx of [-w*.38,w*.38]) for(const dz of [-d*.34,d*.34]) addBox(parent,.055,.58,.055,wood,x+dx,y+.43,z+dz);
+      addSoftBox(parent,w,.095,d,mat(color),x,y+.76,z,.035);
+      for(const dx of [-w*.38,w*.38]) for(const dz of [-d*.34,d*.34]) {
+        addBox(parent,.065,.58,.065,wood,x+dx,y+.43,z+dz);
+        addBox(parent,.09,.045,.09,mat('#594634'),x+dx,y+.17,z+dz);
+      }
       chair(x-w*.34,z+d*.5); chair(x+w*.34,z+d*.5);
       if(w>1.2){chair(x-w*.34,z-d*.5);chair(x+w*.34,z-d*.5);}
-      // A small ceramic centrepiece keeps the dining table from reading as an empty block.
+      // A ceramic bowl, a small fruit cluster and a folded runner add domestic scale cues.
+      addBox(parent,w*.72,.012,.16,mat('#d8c7ad'),x,y+.817,z);
       const bowl=new THREE.Mesh(new THREE.SphereGeometry(.12,12,8,0,Math.PI*2,0,Math.PI*.5),ceramic);
-      bowl.position.set(x,y+.83,z);parent.add(bowl);
+      bowl.position.set(x,y+.84,z);parent.add(bowl);
+      for(let i=0;i<3;i++) {
+        const fruit=new THREE.Mesh(new THREE.SphereGeometry(.055,10,8),mat(['#bd7251','#d4a34f','#8d9b63'][i]));
+        fruit.position.set(x-.055+i*.055,y+.91,z);parent.add(fruit);
+      }
     };
     const seat=(x:number,z:number,color:string)=>{
       const fabric=mat(color);
-      addSoftBox(parent,1.28,.31,.66,fabric,x,y+.43,z,.12);
-      addSoftBox(parent,1.28,.5,.18,fabric,x,y+.79,z-.24,.09);
-      for(const dx of [-.53,.53]) addSoftBox(parent,.18,.43,.66,fabric,x+dx,y+.58,z,.07);
-      for(const dx of [-.48,.48]) addBox(parent,.07,.34,.07,wood,x+dx,y+.19,z+.22);
-      for(const dx of [-.35,.35]) {
-        const cushion=addSoftBox(parent,.48,.12,.43,mat('#d4c8b6'),x+dx,y+.64,z+.04,.07);
-        cushion.rotation.z=dx*.025;
+      addSoftBox(parent,1.34,.25,.7,fabric,x,y+.42,z,.1);
+      addSoftBox(parent,1.34,.56,.2,fabric,x,y+.76,z-.25,.09);
+      for(const dx of [-.57,.57]) addSoftBox(parent,.2,.48,.7,fabric,x+dx,y+.57,z,.075);
+      for(const dx of [-.49,.49]) addBox(parent,.075,.34,.075,wood,x+dx,y+.19,z+.22);
+      // Separate seat cushions and two loose back pillows break the single-block silhouette.
+      for(const dx of [-.34,.34]) {
+        const cushion=addSoftBox(parent,.62,.09,.53,mat('#d4c8b6'),x+dx,y+.59,z+.055,.055);
+        cushion.rotation.z=dx*.018;
+        const pillow=addSoftBox(parent,.38,.36,.12,mat(dx<0?'#c8b9a5':'#b6a28c'),x+dx,y+.91,z-.29,.08);
+        pillow.rotation.z=dx*.08;
       }
     };
     const bed=(x:number,z:number,cover:string)=>{
@@ -394,8 +412,13 @@ export class CommunityWorld {
         addSoftBox(parent,.5,.13,.36,linen,x+dx,y+.64,z-.55,.06);
         addBox(parent,.07,.22,.07,wood,x+dx,y+.11,z+.72);
       }
-      // Folded throw at the foot of the bed.
-      addBox(parent,1.25,.045,.38,mat('#b9aa94'),x,y+.57,z+.62);
+      // Layered duvet, folded throw and a pair of bedside lamps.
+      addSoftBox(parent,1.22,.055,.42,mat('#b9aa94'),x,y+.595,z+.62,.035);
+      addBox(parent,.34,.035,.42,mat('#9c8062'),x+.48,y+.625,z+.62);
+      for(const dx of [-.42,.42]) {
+        const lampShade=new THREE.Mesh(new THREE.CylinderGeometry(.09,.15,.18,16),mat('#e8d7b9'));
+        lampShade.position.set(x+dx,y+.84,z-.72);parent.add(lampShade);
+      }
       for(const dx of [-1.05,1.05]) {
         addBox(parent,.42,.48,.42,oak,x+dx,y+.25,z-.72);
         addBox(parent,.46,.055,.46,ceramic,x+dx,y+.51,z-.72);
